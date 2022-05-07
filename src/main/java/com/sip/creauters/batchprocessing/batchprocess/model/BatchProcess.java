@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
   
 @Entity
-@Table(name = "batch_process")
+@Table(name = "batch_process") //TODO: Create the table lol
 public class BatchProcess {  
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +22,8 @@ public class BatchProcess {
     
     @Column(name = "is_running", nullable = false)
     private boolean isRunning = false;
+    
+    //TODO: Add field for amount of chunks that threads will execute on
 
     public BatchProcess() {
     }

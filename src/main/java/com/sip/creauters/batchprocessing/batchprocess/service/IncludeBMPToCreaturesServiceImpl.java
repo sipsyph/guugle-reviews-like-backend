@@ -12,6 +12,7 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
 
 	public void splitCreatureSetWithBodyMassMovementIntoChunks() {
 		
+		//TODO: parametarize threadCount using the BatchProcess model
 		final Integer threadCount = 9;
 		
 		final Integer recordsAmount = jdbcTemplate.queryForObject(
@@ -25,6 +26,10 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
 		
 		Integer recordsAmountPerChunk = 0;
 		
+		//TODO: if recordsAmountPerChunk is more than maxRecordsAmountPerChunk
+		//then add more chunks so that maxRecordsAmountPerChunk will be met
+		Integer maxRecordsAmountPerChunk = 10000;
+		
         if(recordsAmount > threadCount.intValue()) {
         	recordsAmountPerChunk = (recordsAmount / threadCount.intValue()) + 1;
         }else {
@@ -34,7 +39,6 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
         jdbcTemplate.update("truncate table creature_batch_chunk_temp ");
         
 		
-		//TODO: parametarize 5 here
     	for(int currentChunk = 1; currentChunk<=threadCount; currentChunk++) {
     		
     		jdbcTemplate.update(
@@ -50,7 +54,22 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
     		
     		System.out.println(currentChunk);
         }
-		
+    	
+    	
+	}
+	
+	public void processCreatureSetWithBodyMassMovement() {
+		//TODO: Add into the accumulated_daily_body_mass and update average_daily_body_mass based on this
+	}
+	
+	public void splitCreatureSetWithBodyMassPotentialDueForInclusionIntoChunks() {
+		//TODO: Replicate splitCreatureSetWithBodyMassMovementIntoChunks somewhat
+	}
+	
+	public void processCreatureSetWithBodyMassPotentialDueForInclusion() {
+		//TODO: "Post" the body mass potential accrued finally into the body_mass that is due based on the body_mass_potential_inclusion_type
+		// clear the body_mass_potential value since this has been posted already, and to prepare for further accruals
+		// and calculate body mass potential from average_daily_body_mass then add the value into the body_mass_potential
 	}
 	
 }

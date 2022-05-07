@@ -15,5 +15,7 @@ public class BatchConfiguration {
  
     @Autowired
     public StepBuilderFactory stepBuilderFactory;
+    
+    //TODO: Look more into the benefits of Spring Batch in SQL query heavy batch processing
 
 }
