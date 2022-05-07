@@ -1,4 +1,4 @@
-package com.sip.creauters.batchprocessing;
+package com.sip.creauters.batchprocessing.batchprocess.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

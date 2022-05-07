@@ -6,6 +6,7 @@
 	<version>0.0.1</version>
 	<name>sip-creauters</name>
 	<description>a a a</description>
+	
 	<properties>
 		<java.version>11</java.version>
 		<maven.compiler.source>11</maven.compiler.source>
@@ -15,6 +16,7 @@
 		<compiler-plugin.version>3.8.1</compiler-plugin.version>
 		<surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
 	</properties>
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -90,6 +92,10 @@
 					<artifactId>assertj-core</artifactId>
 					<scope>test</scope>
 				</dependency>
+		        <dependency>
+		            <groupId>org.springframework.boot</groupId>
+		            <artifactId>spring-boot-starter-batch</artifactId>
+		        </dependency>
 			</dependencies>
 			<build>
 				<plugins>

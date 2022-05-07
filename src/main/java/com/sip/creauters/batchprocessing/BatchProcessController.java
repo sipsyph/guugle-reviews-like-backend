@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,12 +15,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sip.creauters.batchprocessing.batchprocess.model.BatchProcess;
+import com.sip.creauters.batchprocessing.batchprocess.service.BatchProcessService;
+
 @RestController
 @RequestMapping("/execute")
 public class BatchProcessController {
-    private final BatchProcessRepository batchProcessRepository;
+    @Autowired
+	private BatchProcessRepository batchProcessRepository;
+    @Autowired
+    private BatchProcessService batchProcessService;
 
-    public BatchProcessController(BatchProcessRepository batchProcessRepository) {
+    public BatchProcessController(BatchProcessRepository batchProcessRepository,
+    		BatchProcessService batchProcessService) {
         this.batchProcessRepository = batchProcessRepository;
     }
 
@@ -35,7 +43,7 @@ public class BatchProcessController {
 
     @PostMapping("/includeBodyMassPotentialToCreatures")
     public void includeBodyMassPotentialToCreatures() {
-        
+    	batchProcessService.includeBodyMassPotentialToCreatures();
     }
     
     @PostMapping("/decayDeadCreatures")
