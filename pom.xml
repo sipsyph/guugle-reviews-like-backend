@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>io.quarkus</groupId>
-	<artifactId>todo-spring-quarkus</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>todo-spring-quarkus</name>
-	<description>A Todo application that builds and runs as either Spring Boot or Quarkus!</description>
+	<groupId>com.sip.creauters</groupId>
+	<artifactId>sip-creauters</artifactId>
+	<version>0.0.1</version>
+	<name>sip-creauters</name>
+	<description>a a a</description>
 	<properties>
 		<java.version>11</java.version>
 		<maven.compiler.source>11</maven.compiler.source>
@@ -16,8 +16,6 @@
 		<surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
 	</properties>
 	<dependencies>
-		<!-- This dependency is a hack for TodoApplication.java, which isn't required for Quarkus. Point of demo is to NOT have any code changes. -->
-		<!--	It won't actually be included in the binary that gets built (optional = true)	-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-autoconfigure</artifactId>

@@ -1,7 +1,7 @@
-package io.quarkus.todospringquarkus;
+package com.sip.creauters.batchprocessing;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
   
 @Repository  
-interface TodoRepository extends JpaRepository<TodoEntity, Long> {}
+interface BatchProcessRepository extends JpaRepository<BatchProcess, Long> {}

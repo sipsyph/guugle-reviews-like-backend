@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>todo-spring-quarkus</name>
+	<name>sip-creauters</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -15,6 +15,11 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>org.springframework.ide.eclipse.boot.validation.springbootbuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
@@ -22,7 +27,7 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1604620824964</id>
+			<id>0</id>
 			<name></name>
 			<type>30</type>
 			<matcher>

@@ -4,7 +4,7 @@ metadata:
 projects:
   - name: todo-spring-quarkus
     source:
-      location: 'https://github.com/edeandrea/todo-spring-quarkus'
+      location: 'https://github.com/sipsyph/creauters-batchprocessing'
       type: git
       branch: main
 components:
@@ -12,7 +12,7 @@ components:
     type: chePlugin
   - mountSources: true
     endpoints:
-      - name: todo-application
+      - name: sip-creauters
         port: 8080
     memoryLimit: 1024Mi
     type: dockerimage
@@ -26,9 +26,9 @@ components:
         name: JAVA_OPTS
       - value: $(JAVA_OPTS)
         name: MAVEN_OPTS
-  - alias: tododb
+  - alias: creauters
     endpoints:
-      - name: tododb
+      - name: creauters
         port: 5432
     memoryLimit: 1024Mi
     type: dockerimage
@@ -38,18 +38,18 @@ components:
         name: POSTGRESQL_USER
       - value: todo
         name: POSTGRESQL_PASSWORD
-      - value: tododb
+      - value: creauters
         name: POSTGRESQL_DATABASE
 commands:
   - name: 1. Run as Spring Boot
     actions:
-      - workdir: '${CHE_PROJECTS_ROOT}/todo-spring-quarkus'
+      - workdir: '${CHE_PROJECTS_ROOT}/sip-creauters'
         type: exec
         command: './mvnw clean spring-boot:run'
         component: todo-application
   - name: 2. Run as Quarkus
     actions:
-      - workdir: '${CHE_PROJECTS_ROOT}/todo-spring-quarkus'
+      - workdir: '${CHE_PROJECTS_ROOT}/sip-creauters'
         type: exec
         command: './.mvnw clean spring-boot:run'
         component: todo-application
