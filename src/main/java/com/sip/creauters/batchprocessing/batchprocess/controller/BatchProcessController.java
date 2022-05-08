@@ -1,4 +1,4 @@
-package com.sip.creauters.batchprocessing;
+package com.sip.creauters.batchprocessing.batchprocess.controller;
 
 import java.util.List;
 
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sip.creauters.batchprocessing.batchprocess.model.BatchProcess;
+import com.sip.creauters.batchprocessing.batchprocess.repository.BatchProcessRepository;
 import com.sip.creauters.batchprocessing.batchprocess.service.BatchProcessService;
 
 @RestController
@@ -29,16 +30,6 @@ public class BatchProcessController {
     public BatchProcessController(BatchProcessRepository batchProcessRepository,
     		BatchProcessService batchProcessService) {
         this.batchProcessRepository = batchProcessRepository;
-    }
-
-    @GetMapping
-    public List<BatchProcess> findAll() {
-        return this.batchProcessRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
-    }
- 
-    @GetMapping("/{id}")
-    public BatchProcess findById(@PathVariable("id") Long id) {
-        return this.batchProcessRepository.findById(id).get();
     }
 
     @PostMapping("/includeBodyMassPotentialToCreatures")

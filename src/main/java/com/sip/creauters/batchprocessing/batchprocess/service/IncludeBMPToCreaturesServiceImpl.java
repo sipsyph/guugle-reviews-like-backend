@@ -12,8 +12,16 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
 
 	public void splitCreatureSetWithBodyMassMovementIntoChunks() {
 		
-		//TODO: parametarize threadCount using the BatchProcess model
-		final Integer threadCount = 9;
+		final Integer chunkCount = jdbcTemplate.queryForObject(
+			"select cast(ac.value as integer) from app_configuration ac " +
+			"where ac.\"name\" = 'includeBodyMassPotentialToCreaturesChunkCount'", 
+			Integer.class
+		);
+		final Integer maxRecordsAmountPerChunk = jdbcTemplate.queryForObject(
+			"select cast(ac.value as integer) from app_configuration ac " +
+			"where ac.\"name\" = 'includeBodyMassPotentialToCreaturesMaxRecordsPerChunk'", 
+			Integer.class
+		);
 		
 		final Integer recordsAmount = jdbcTemplate.queryForObject(
 			"select count(1) from creature c " + 
@@ -24,22 +32,12 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
 		
 		System.out.println(recordsAmount);
 		
-		Integer recordsAmountPerChunk = 0;
-		
-		//TODO: if recordsAmountPerChunk is more than maxRecordsAmountPerChunk
-		//then add more chunks so that maxRecordsAmountPerChunk will be met
-		Integer maxRecordsAmountPerChunk = 10000;
-		
-        if(recordsAmount > threadCount.intValue()) {
-        	recordsAmountPerChunk = (recordsAmount / threadCount.intValue()) + 1;
-        }else {
-        	recordsAmountPerChunk = recordsAmount + 1;
-        }
+		Integer recordsAmountPerChunk = BatchProcessUtils.splitRecordsSetIntoChunks(chunkCount, recordsAmount, maxRecordsAmountPerChunk);
         
         jdbcTemplate.update("truncate table creature_batch_chunk_temp ");
         
 		
-    	for(int currentChunk = 1; currentChunk<=threadCount; currentChunk++) {
+    	for(int currentChunk = 1; currentChunk<=chunkCount; currentChunk++) {
     		
     		jdbcTemplate.update(
     			"insert into creature_batch_chunk_temp(creature_id,chunk_id) "+ 

@@ -7,5 +7,4 @@ public interface BatchProcessService {
 	public void decayDeadCreatures();
 	
 	public void giveBirthByDuePregnantCreatures();
-
 }
