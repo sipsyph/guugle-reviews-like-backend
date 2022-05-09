@@ -15,9 +15,8 @@ public class BatchProcessServiceImpl implements BatchProcessService {
 	
 	@Transactional
 	@Override
-	public void includeBodyMassPotentialToCreatures() {
-		final BatchProcess batchProcess = new BatchProcess();
-		includeBMPToCreaturesService.splitCreatureSetWithBodyMassMovementIntoChunks();
+	public void includeBodyMassPotentialToCreatures(Boolean isMultiThreaded) {
+		includeBMPToCreaturesService.splitCreatureSetWithBodyMassMovementIntoChunks(isMultiThreaded);
 	}
 	
 	@Transactional

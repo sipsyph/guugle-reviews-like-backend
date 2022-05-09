@@ -13,28 +13,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sip.creauters.batchprocessing.batchprocess.model.BatchProcess;
-import com.sip.creauters.batchprocessing.batchprocess.repository.BatchProcessRepository;
 import com.sip.creauters.batchprocessing.batchprocess.service.BatchProcessService;
 
 @RestController
 @RequestMapping("/execute")
 public class BatchProcessController {
-    @Autowired
-	private BatchProcessRepository batchProcessRepository;
+
     @Autowired
     private BatchProcessService batchProcessService;
 
-    public BatchProcessController(BatchProcessRepository batchProcessRepository,
-    		BatchProcessService batchProcessService) {
-        this.batchProcessRepository = batchProcessRepository;
-    }
-
     @PostMapping("/includeBodyMassPotentialToCreatures")
-    public void includeBodyMassPotentialToCreatures() {
-    	batchProcessService.includeBodyMassPotentialToCreatures();
+    public void includeBodyMassPotentialToCreatures(
+    		@RequestParam(name = "isMultiThreaded") Boolean isMultiThreaded) {
+    	batchProcessService.includeBodyMassPotentialToCreatures(isMultiThreaded);
     }
     
     @PostMapping("/decayDeadCreatures")
