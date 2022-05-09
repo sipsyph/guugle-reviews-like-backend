@@ -30,14 +30,14 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
 			Integer.class
 		);
 		
-		System.out.println(recordsAmount);
+		BatchProcessChunksDivision chunksDivision = BatchProcessUtils.splitRecordsSetIntoChunks(chunkCount, recordsAmount, maxRecordsAmountPerChunk);
 		
-		Integer recordsAmountPerChunk = BatchProcessUtils.splitRecordsSetIntoChunks(chunkCount, recordsAmount, maxRecordsAmountPerChunk);
+		final Integer updatedRecordsAmountPerChunk = chunksDivision.getRecordsAmountPerChunk();
+		final Integer updatedChunkCount = chunksDivision.getChunkCount();
         
         jdbcTemplate.update("truncate table creature_batch_chunk_temp ");
-        
 		
-    	for(int currentChunk = 1; currentChunk<=chunkCount; currentChunk++) {
+    	for(int currentChunk = 1; currentChunk<=updatedChunkCount; currentChunk++) {
     		
     		jdbcTemplate.update(
     			"insert into creature_batch_chunk_temp(creature_id,chunk_id) "+ 
@@ -47,7 +47,7 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
     			"not exists (select 1 from creature_batch_chunk_temp tmp where tmp.creature_id = c.id)" +
     			"limit ? ",
     			currentChunk,
-    			recordsAmountPerChunk
+    			updatedRecordsAmountPerChunk
     		);
     		
     		System.out.println(currentChunk);

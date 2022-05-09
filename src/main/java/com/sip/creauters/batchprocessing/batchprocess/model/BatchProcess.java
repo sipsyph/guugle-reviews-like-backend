@@ -22,8 +22,6 @@ public class BatchProcess {
     
     @Column(name = "is_running", nullable = false)
     private boolean isRunning = false;
-    
-    //TODO: Add field for amount of chunks that threads will execute on
 
     public BatchProcess() {
     }
@@ -66,4 +64,5 @@ public class BatchProcess {
     public void setIsRunning(boolean isRunning) {
         this.isRunning = isRunning;
     }
+
 }
