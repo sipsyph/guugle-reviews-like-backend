@@ -23,7 +23,7 @@ create table creature
 	body_mass_potential decimal(15,8) not null default 0,
 	birth_date date not null default current_date,
 	average_daily_body_mass decimal(15,8) not null default 0,
-	last_body_mass_change_date date not null default current_date,
+	last_body_mass_change_date date not null default current_date - 1,
 	last_body_mass_before_change decimal(15,8) not null default 0,
 	accumulated_daily_body_mass decimal(15,8) not null default 0
 );
@@ -38,6 +38,71 @@ create table creature_event
 	body_mass_change_amount decimal(15,8) not null default 0,
 	takeaway_type smallint not null default 0,
 	event_date date not null default current_date
+);
+
+drop table if exists creature_batch_chunk_temp;
+
+
+create table creature_batch_chunk_temp
+( 
+	creature_id bigint references creature (id) on delete cascade,
+	chunk_id smallint not null default 1
+);
+
+drop table if exists batch_process;
+
+create table batch_process
+( 
+	id serial constraint batch_process_pk primary key,
+	"name" varchar(200),
+	display_name varchar(200),
+	description varchar(200),
+	is_running bool not null default false,
+	is_completed bool not null default false,
+	recent_run_date date
+);
+
+drop table if exists app_configuration;
+
+create table app_configuration
+( 
+	id serial constraint app_configuration_pk primary key,
+	"name" varchar(200),
+	display_name varchar(200),
+	"value" varchar(200),
+	description varchar(200)
+);
+
+INSERT INTO batch_process
+("name", display_name, description, is_running, is_completed, recent_run_date)
+VALUES('includeBodyMassPotentialToCreatures', 'Include Body Mass Potential To Creatures', '', false, false, null);
+
+INSERT into batch_process
+("name", display_name, description, is_running, is_completed, recent_run_date)
+VALUES('decayDeadCreatures', 'Decay Dead Creatures', '', false, false, null);
+
+INSERT INTO batch_process
+("name", display_name, description, is_running, is_completed, recent_run_date)
+VALUES('giveBirthByDuePregnantCreatures', 'Give Birth By Due Pregnant Creatures', '', false, false, null);
+
+truncate table app_configuration;
+
+INSERT INTO app_configuration
+("name", display_name, value, description)
+VALUES(
+	'includeBodyMassPotentialToCreaturesChunkCount', 
+	'Include Body Mass Potential To Creatures Chunk Count', 
+	'6', 
+	'Minimum amount of chunks the record set of this process that will be split into'
+);
+
+INSERT INTO app_configuration
+("name", display_name, value, description)
+VALUES(
+	'includeBodyMassPotentialToCreaturesMaxRecordsPerChunk', 
+	'Include Body Mass Potential To Creatures Max Records Per Chunk', 
+	'1000000', 
+	'Max amount of record per the process min amount of chunks plus extra amount of chunks to meet the set value here'
 );
 
 
@@ -142,7 +207,7 @@ truncate table creature cascade;
 --creature classif 1
 do $$
 begin
-for r in 1..10000 loop
+for r in 1..300000 loop
 insert into creature("name", creature_classification_id, age_in_years, body_mass, body_mass_potential, birth_date, 
 average_daily_body_mass, last_body_mass_change_date, last_body_mass_before_change, accumulated_daily_body_mass) 
 values(
@@ -153,7 +218,7 @@ values(
 		0,
 		current_date,
 		0,
-		current_date,
+		current_date - 1,
 		0,
 		0
 );
@@ -164,18 +229,18 @@ $$;
 --creature classif 2
 do $$
 begin
-for r in 1..10000 loop
+for r in 1..300000 loop
 insert into creature("name", creature_classification_id, age_in_years, body_mass, body_mass_potential, birth_date, 
 average_daily_body_mass, last_body_mass_change_date, last_body_mass_before_change, accumulated_daily_body_mass) 
 values(
 		(select "name" from creature_classification cc where cc.id = 2) || '-' || encode(gen_random_bytes(20),'base64'),
-		1,
+		2,
 		0,
 		cast( ((floor(random()*(500000-1000+1))+10)+random()) as decimal(15,8) ),
 		0,
 		current_date,
 		0,
-		current_date,
+		current_date - 1,
 		0,
 		0
 );
@@ -186,18 +251,18 @@ $$;
 --creature classif 3
 do $$
 begin
-for r in 1..10000 loop
+for r in 1..300000 loop
 insert into creature("name", creature_classification_id, age_in_years, body_mass, body_mass_potential, birth_date, 
 average_daily_body_mass, last_body_mass_change_date, last_body_mass_before_change, accumulated_daily_body_mass) 
 values(
 		(select "name" from creature_classification cc where cc.id = 3) || '-' || encode(gen_random_bytes(20),'base64'),
-		1,
+		3,
 		0,
 		cast( ((floor(random()*(500000-1000+1))+10)+random()) as decimal(15,8) ),
 		0,
 		current_date,
 		0,
-		current_date,
+		current_date - 1,
 		0,
 		0
 );
@@ -208,18 +273,18 @@ $$;
 --creature classif 4
 do $$
 begin
-for r in 1..10000 loop
+for r in 1..300000 loop
 insert into creature("name", creature_classification_id, age_in_years, body_mass, body_mass_potential, birth_date, 
 average_daily_body_mass, last_body_mass_change_date, last_body_mass_before_change, accumulated_daily_body_mass) 
 values(
 		(select "name" from creature_classification cc where cc.id = 4) || '-' || encode(gen_random_bytes(20),'base64'),
-		1,
+		4,
 		0,
 		cast( ((floor(random()*(500000-1000+1))+10)+random()) as decimal(15,8) ),
 		0,
 		current_date,
 		0,
-		current_date,
+		current_date - 1,
 		0,
 		0
 );
@@ -230,18 +295,18 @@ $$;
 --creature classif 5
 do $$
 begin
-for r in 1..10000 loop
+for r in 1..300000 loop
 insert into creature("name", creature_classification_id, age_in_years, body_mass, body_mass_potential, birth_date, 
 average_daily_body_mass, last_body_mass_change_date, last_body_mass_before_change, accumulated_daily_body_mass) 
 values(
 		(select "name" from creature_classification cc where cc.id = 5) || '-' || encode(gen_random_bytes(20),'base64'),
-		1,
+		5,
 		0,
 		cast( ((floor(random()*(500000-1000+1))+10)+random()) as decimal(15,8) ),
 		0,
 		current_date,
 		0,
-		current_date,
+		current_date - 1,
 		0,
 		0
 );
