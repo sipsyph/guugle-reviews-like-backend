@@ -2,6 +2,7 @@ package com.sip.creauters.batchprocessing.batchprocess.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -47,7 +48,8 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
 			") ";
 
 	public void splitCreatureSetWithBodyMassMovementIntoChunks(Boolean isMultiThreaded) {
-		
+		Date start = new Date();
+		System.out.println("Batch process started at "+start);
 		final Integer chunkCount = jdbcTemplate.queryForObject(
 			"select cast(ac.value as integer) from app_configuration ac " +
 			"where ac.\"name\" = 'includeBodyMassPotentialToCreaturesChunkCount'", 
@@ -84,8 +86,6 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
         
     	for(Integer currentChunk = 1; currentChunk<=updatedChunkCount; currentChunk++) {
     		
-    		final Integer finalCurChunk = currentChunk;
-    		
     		namedJdbcTemplate.update(
     			"insert into creature_batch_chunk_temp(creature_id,chunk_id) " 
     			+"select c.id, (:currentChunk) from creature c "  
@@ -95,7 +95,7 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
     			+"and ( "+shouldCompoundOrIncludeTodayWherePredicate+" ) "
     			+"limit :updatedRecordsAmountPerChunk ",
     			new MapSqlParameterSource()
-        		.addValue("currentChunk", Integer.valueOf(finalCurChunk))
+        		.addValue("currentChunk", Integer.valueOf(currentChunk))
         		.addValue("updatedRecordsAmountPerChunk", updatedRecordsAmountPerChunk)
         		.addValue("todayIsLastWorkingDayOfWeek", false)
         		.addValue("todayIsLastWorkingDayOfMonth", false)
@@ -104,23 +104,49 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
         		.addValue("todayIsLastWorkingDayOfAnnual", false)
     		);
     		
-    		if(isMultiThreaded) {
-        		executorService.execute(() -> {
-        			processCreatureSetWithBodyMassMovement(finalCurChunk);
-        		});
-    		}else {
-    			processCreatureSetWithBodyMassMovement(finalCurChunk);
-    		}
-    		
-    		System.out.println(finalCurChunk);
+    		System.out.println("Inserted into temp table for chunk "+currentChunk);
         }
     	
-    	if(isMultiThreaded) {
-    		executorService.shutdown();
-    		System.out.println("All threads finished");
-    	}
+    	List<Future<Integer>> futures = new ArrayList<Future<Integer>>();;
+		for(Integer currentChunk = 1; currentChunk<=updatedChunkCount; currentChunk++) {
+			final Integer finalCurChunk = currentChunk;
+			if(isMultiThreaded) {
+				futures.add(executorService.submit(new Callable<Integer>() { 
+        			
+        			@Override
+        			public Integer call() {
+        				processCreatureSetWithBodyMassMovement(finalCurChunk);
+        				Date end = new Date();
+        		    	System.out.println("Chunk finished at "+end);
+        		    	System.out.println("Chunk took "+(end.getTime()-start.getTime())/1000+" seconds");
+        				return finalCurChunk;
+        			}
+        			
+        		}));
+			}else {
+				processCreatureSetWithBodyMassMovement(finalCurChunk);
+			}
+		}
+		
+		if(isMultiThreaded) {
+			executorService.shutdown();
+			//FIXME: executorService.awaitTermination future.get and CountDownLatch blocks but doesnt seem to let the threads finish
+//	    	for(Future<Integer> future: futures) {
+//	    		try {
+//	    			System.out.println("Finished at "+future.get());
+//				} catch (InterruptedException e) {
+//					System.out.println("An error occurred."+ e);
+//				} catch (ExecutionException e) {
+//					System.out.println("An error occurred."+ e);
+//				}
+//	    	}
+//			System.out.println("All threads finished");
+			
+		}
     	
-    	System.out.println("Batch process finished");
+		Date end = new Date();
+    	System.out.println("Batch process finished at "+end);
+    	System.out.println("Batch process took "+(end.getTime()-start.getTime())/1000+" seconds");
 	}
 	
 	private void processCreatureSetWithBodyMassMovement(Integer finalCurChunk) {
@@ -160,7 +186,8 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
 					+"end "
 					+") "
 					+"from creature_batch_chunk_temp as c_temp, creature_classification as c_classif "
-					+"where creature.id = c_temp.creature_id and c_temp.chunk_id = :currentChunk and c_classif.id = creature.creature_classification_id and creature.id = :currentChunk",
+					+"where creature.id = c_temp.creature_id and c_temp.chunk_id = :currentChunk and c_classif.id = creature.creature_classification_id and creature.id = :currentChunk"
+					+" ",
 					new MapSqlParameterSource()
 					.addValue("currentChunk", Integer.valueOf(finalCurChunk))
 					.addValue("dateToday", LocalDate.of(2022, 5, 9))
@@ -170,11 +197,17 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
 					.addValue("lastDayOfHalfYear", LocalDate.of(2022, 6, 30))
 					.addValue("lastDayOfYear", LocalDate.of(2022, 12, 31))
 				);
+			System.out.println("Finished insert to temp table at chunk "+finalCurChunk);
+			//Bottleneck query taking around 12 seconds to execute! Remove when necessary.
+			Integer dumbBottleneckQuery = jdbcTemplate.queryForObject(
+					"select count(1) from creature_classification cc ,creature a ,creature_classification b ", 
+					Integer.class
+				);
+			System.out.println("Finished bottleneck select count "+dumbBottleneckQuery+" at chunk "+finalCurChunk);
+			
 		} catch (DataAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally {
 			System.out.println("Finished thread execution on chunk "+finalCurChunk);

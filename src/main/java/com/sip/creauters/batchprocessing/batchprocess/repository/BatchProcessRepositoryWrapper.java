@@ -30,5 +30,13 @@ public class BatchProcessRepositoryWrapper{
         return this.batchProcessRepository.findById(id).get();
     }
     
+    public BatchProcess findByName(String name) {
+        return this.batchProcessRepository.findByName(name);
+    }
+    
+    public BatchProcess saveAndFlush(BatchProcess batchProcess) {
+        return this.batchProcessRepository.saveAndFlush(batchProcess);
+    }
+    
 	
 }

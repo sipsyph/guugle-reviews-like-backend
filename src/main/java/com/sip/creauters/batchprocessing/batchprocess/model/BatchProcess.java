@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
   
 @Entity
-@Table(name = "batch_process") //TODO: Create the table lol
+@Table(name = "batch_process")
 public class BatchProcess {  
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
