@@ -51,13 +51,13 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
 		Date start = new Date();
 		System.out.println("Batch process started at "+start);
 		final Integer chunkCount = jdbcTemplate.queryForObject(
-			"select cast(ac.value as integer) from app_configuration ac " +
-			"where ac.\"name\" = 'includeBodyMassPotentialToCreaturesChunkCount'", 
+			"select cast(ac.value as unsigned) from app_configuration ac " +
+			"where ac.`name` = 'includeBodyMassPotentialToCreaturesChunkCount'", 
 			Integer.class
 		);
 		final Integer maxRecordsAmountPerChunk = jdbcTemplate.queryForObject(
-			"select cast(ac.value as integer) from app_configuration ac " +
-			"where ac.\"name\" = 'includeBodyMassPotentialToCreaturesMaxRecordsPerChunk'", 
+			"select cast(ac.value as unsigned) from app_configuration ac " +
+			"where ac.`name` = 'includeBodyMassPotentialToCreaturesMaxRecordsPerChunk'", 
 			Integer.class
 		);
 		
@@ -131,15 +131,15 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
 		if(isMultiThreaded) {
 			executorService.shutdown();
 			//FIXME: executorService.awaitTermination future.get and CountDownLatch blocks but doesnt seem to let the threads finish
-//	    	for(Future<Integer> future: futures) {
-//	    		try {
-//	    			System.out.println("Finished at "+future.get());
-//				} catch (InterruptedException e) {
-//					System.out.println("An error occurred."+ e);
-//				} catch (ExecutionException e) {
-//					System.out.println("An error occurred."+ e);
-//				}
-//	    	}
+	    	for(Future<Integer> future: futures) {
+	    		try {
+	    			System.out.println("Finished at "+future.get());
+				} catch (InterruptedException e) {
+					System.out.println("An error occurred."+ e);
+				} catch (ExecutionException e) {
+					System.out.println("An error occurred."+ e);
+				}
+	    	}
 //			System.out.println("All threads finished");
 			
 		}
@@ -155,39 +155,38 @@ public class IncludeBMPToCreaturesServiceImpl implements IncludeBMPToCreaturesSe
 		try {
 			System.out.println("Thread executing on chunk "+finalCurChunk);
 			namedJdbcTemplate.update(
-					"update creature "
-					+"set accumulated_daily_body_mass = 9999.99, " //accumulated_daily_body_mass + (last_body_mass_before_change * (:dateToday::date - last_body_mass_change_date::date) ) + body_mass
-					+"average_daily_body_mass = ( "
-					+"(accumulated_daily_body_mass + (last_body_mass_before_change * (:dateToday::date - last_body_mass_change_date::date) ) + body_mass) "
-					+"+ (body_mass * ( "
-					+"( "
-					+"case c_classif.body_mass_potential_compounding_type "
-					+"when 1 then :dateToday "
-					+"when 2 then :lastDayOfWeek "
-					+"when 3 then :lastDayOfMonth "
-					+"when 4 then :lastDayOfQuarter "
-					+"when 5 then :lastDayOfHalfYear "
-					+"when 6 then :lastDayOfYear "
-					+"else :dateToday "
-					+"end "
-					+")::date "
-					+"- :dateToday::date "
-					+") "
-					+") "
-					+"/ "
-					+"case c_classif.body_mass_potential_compounding_type "
-					+"when 1 then 1 "
-					+"when 2 then 7 "
-					+"when 3 then DATE_PART('days', date_trunc('month', :dateToday::date) + '1 month'::interval - '1 day'::interval) "
-					+"when 4 then 90 " //hard coded 90 as amount of days in quarter for convenience
-					+"when 5 then 180 " //hard coded to 180 as amount of days in halfyear for convenience
-					+"when 6 then 360 " //hard coded 360 as amount of days in year for convenience
-					+"else 1 "
-					+"end "
-					+") "
-					+"from creature_batch_chunk_temp as c_temp, creature_classification as c_classif "
-					+"where creature.id = c_temp.creature_id and c_temp.chunk_id = :currentChunk and c_classif.id = creature.creature_classification_id and creature.id = :currentChunk"
-					+" ",
+					" update creature "+
+					" inner join creature_batch_chunk_temp as c_temp on c_temp.creature_id = creature.id "+
+					" inner join creature_classification as c_classif on c_classif.id = creature.creature_classification_id "+
+					" set creature.accumulated_daily_body_mass = "+
+					" (accumulated_daily_body_mass + (last_body_mass_before_change * (cast(:dateToday as date) - cast(last_body_mass_change_date as date)) ) + body_mass), "+
+					" creature.average_daily_body_mass = "+
+					" ( "+
+					" (accumulated_daily_body_mass + (last_body_mass_before_change * (cast(:dateToday as date) - cast(last_body_mass_change_date as date)) ) + body_mass) "+
+					" + (body_mass * ( "+
+					" cast( ( "+
+					" case c_classif.body_mass_potential_compounding_type "+
+					" when 1 then :dateToday "+
+					" when 2 then :lastDayOfWeek "+
+					" when 3 then :lastDayOfMonth "+
+					" when 4 then :lastDayOfQuarter "+
+					" when 5 then :lastDayOfHalfYear "+
+					" when 6 then :lastDayOfYear "+
+					" else :dateToday "+
+					" end "+
+					" ) as date) "+
+					" - cast(:dateToday as date) "+
+					" ) "+
+					" ) "+
+					" / "+
+					" case c_classif.body_mass_potential_compounding_type "+
+					" when 1 then 1 "+
+					" when 2 then 7 "+
+					" when 3 then 30 when 4 then 90 when 5 then 180 when 6 then 360 else 1 "+
+					" end "+
+					" ) "+
+					" where c_temp.chunk_id = :currentChunk "
+					,
 					new MapSqlParameterSource()
 					.addValue("currentChunk", Integer.valueOf(finalCurChunk))
 					.addValue("dateToday", LocalDate.of(2022, 5, 9))
