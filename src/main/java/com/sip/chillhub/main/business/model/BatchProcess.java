@@ -1,4 +1,4 @@
-package com.sip.creauters.batchprocessing.batchprocess.model;
+package com.sip.chillhub.main.business.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

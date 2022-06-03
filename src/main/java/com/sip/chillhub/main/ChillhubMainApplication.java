@@ -1,4 +1,4 @@
-package com.sip.creauters.batchprocessing;
+package com.sip.chillhub.main;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"com.sip"})
-public class CreautersBatchProcessingApplication {
+public class ChillhubMainApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CreautersBatchProcessingApplication.class, args);
+		SpringApplication.run(ChillhubMainApplication.class, args);
 	}
 
 }
