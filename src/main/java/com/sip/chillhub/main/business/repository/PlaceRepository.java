@@ -23,51 +23,7 @@ public class PlaceRepository {
 	@Autowired
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 	
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
-	
-	public List<Long> findBySearchRequestParameters(PlaceSearchRequest placeSearchRequest){
-        System.out.println(placeSearchRequest.toString());
-		final StringBuilder sqlStatement = new StringBuilder(1000); 
-		MapSqlParameterSource sqlParams = new MapSqlParameterSource();
-		sqlStatement.append("select id from place ");
-		if(!placeSearchRequest.isEmpty()) {
-			sqlStatement.append("where ");
-
-			if(placeSearchRequest.getSearchString()!=null) {
-				sqlStatement.append("name like :searchString ");
-				sqlParams.addValue("searchString", placeSearchRequest.getSearchString());
-			}
-			if(placeSearchRequest.getCategoryId()!=null) {
-				sqlStatement.append("category_type = :categoryType ");
-				sqlParams.addValue("categoryType", placeSearchRequest.getCategoryId());
-			}
-			if(!placeSearchRequest.getOrderByAndSortBy().isEmpty()) {
-				sqlStatement.append("order by ");
-			    
-			    int i=1;
-			    
-			    for(String orderByAndSortBy : placeSearchRequest.getOrderByAndSortBy()) {
-			    	if(i==placeSearchRequest.getOrderByAndSortBy().size()) {
-				    	sqlStatement.append(orderByAndSortBy+" ");
-				    	break;
-			    	}else {
-				    	sqlStatement.append(orderByAndSortBy+" , ");
-			    	}
-			    	
-			    	i++;
-			    }
-			    
-			    
-			}
-			if(placeSearchRequest.getId()!=null) {
-				sqlStatement.append("id = :id ");
-				sqlParams.addValue("id", placeSearchRequest.getId());
-			}
-		}
-		sqlStatement.append("limit 100 ");
-		
-        System.out.println(sqlStatement);
+	public List<Long> findBySearchRequestParameters(String sqlStatement, MapSqlParameterSource sqlParams){
         
         List<Long> idList = namedParameterJdbcTemplate.queryForList(
         		sqlStatement.toString(), 

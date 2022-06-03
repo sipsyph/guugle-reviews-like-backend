@@ -12,7 +12,6 @@ public class PlaceSearchRequest {
 	
 	private Long id;
 	private String searchString;
-	private Long categoryId;
 	private List<String> orderByAndSortBy;
 
 	public String getSearchString() {
@@ -31,14 +30,6 @@ public class PlaceSearchRequest {
 		this.id = id;
 	}
 
-	public Long getCategoryId() {
-		return categoryId;
-	}
-
-	public void setCategoryId(Long categoryId) {
-		this.categoryId = categoryId;
-	}
-
 	public List<String> getOrderByAndSortBy() {
 		return orderByAndSortBy;
 	}
@@ -48,17 +39,14 @@ public class PlaceSearchRequest {
 	}
 	
 	public boolean isEmpty() {
-		if(orderByAndSortBy.isEmpty()&&
-				categoryId==null&&
-				id==null&&
-				searchString==null) {
+		if(id==null&&searchString==null) {
 			return true;
 		}
 		return false;
 	}
 	
 	public String toString() {
-		return getId()+" "+getSearchString()+" "+getCategoryId()+" "+getOrderByAndSortBy().toString();
+		return getId()+" "+getSearchString()+" "+getOrderByAndSortBy().toString();
 	}
 	
 }
