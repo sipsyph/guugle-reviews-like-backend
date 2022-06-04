@@ -22,42 +22,35 @@ public class MemoirReadServiceImpl implements MemoirReadService {
 	@Override
 	public List<Long> findAllBySearchRequest(MemoirSearchRequest request){
 		//System.out.println(request.toString());
-		final StringBuilder sqlStatementUntilWhereClause = new StringBuilder(200); 
+		final StringBuilder sqlStatementUntilWherePredicate = new StringBuilder(200); 
 		final StringBuilder sqlStatement = new StringBuilder(500);
 		MapSqlParameterSource sqlParams = new MapSqlParameterSource();
-		sqlStatementUntilWhereClause.append("SELECT id FROM memoir ");
+		sqlStatementUntilWherePredicate.append("SELECT id FROM memoir ");
 		if(!request.isEmpty()) {
-			sqlStatementUntilWhereClause.append("WHERE ");
+			sqlStatementUntilWherePredicate.append("WHERE ");
 			
 			if(request.getId()!=null) {
-				sqlStatementUntilWhereClause.append("id = :id AND ");
+				sqlStatementUntilWherePredicate.append("id = :id AND ");
 				sqlParams.addValue("id", request.getId());
 			}
 			
 			if(request.getSearchString()!=null) {
-				sqlStatementUntilWhereClause.append("name LIKE :searchString AND ");
+				sqlStatementUntilWherePredicate.append("name LIKE :searchString AND ");
 				sqlParams.addValue("searchString", request.getSearchString());
 			}
 			
-			final int indexOfLastAnd = sqlStatementUntilWhereClause.lastIndexOf("AND");
-			
-			if(indexOfLastAnd==-1) {
-				sqlStatement.append(sqlStatementUntilWhereClause);
-			}else {
-				sqlStatement.append(sqlStatementUntilWhereClause.substring(0, indexOfLastAnd));
-			}
+			return memoirRepository.findBySearchRequestParameters(
+					SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), 
+							SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementUntilWherePredicate)).toString(), 
+					sqlParams);
 			
 		}else {
-			sqlStatement.append(sqlStatementUntilWhereClause);
+			sqlStatement.append(sqlStatementUntilWherePredicate);
+			
+			return memoirRepository.findBySearchRequestParameters(
+					SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), sqlStatement).toString(), 
+					sqlParams);
 		}
-		
-		System.out.println("Statement without order by and limit: "+sqlStatement+" ");
-		
-		SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), sqlStatement);
-		
-        System.out.println("Complete statement: "+sqlStatement+" ");
-        
-		return memoirRepository.findBySearchRequestParameters(sqlStatement.toString(), sqlParams);
 	}
 
 }
