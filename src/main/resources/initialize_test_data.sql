@@ -90,6 +90,10 @@ create table usr
 	"name" varchar(50),
 	pass varchar(50),
 	"desc" varchar(10000),
+	coins integer not null default 0,
+	avatar_img varchar(50),
+	name_style smallint,
+	last_login_date date not null default current_date,
 	del boolean not null default false
 );
 
@@ -98,11 +102,15 @@ truncate table usr cascade;
 do $$
 begin
 for r in 1..100000 loop
-insert into usr("name", pass,"desc",del) 
+insert into usr("name", pass,"desc",coins,avatar_img,name_style,last_login_date,del) 
 values(
 		random_name(3),
 		encode(gen_random_bytes(4),'base64'),
 		random_text(10),
+		cast( ((floor(random()*(5000-1+1))+1)+random()) as integer ),
+		encode(gen_random_bytes(4),'base64'),
+		cast( ((floor(random()*(30-1+1))+1)+random()) as integer ),
+		current_date,
 		false
 );
 end loop;
@@ -118,11 +126,12 @@ create table memoir
 	id serial constraint memoir_pk primary key,
 	place_id bigint ,
 	constraint place_fk foreign key(place_id) references place(id),
+	usr_id bigint ,
+	constraint usr_fk foreign key(usr_id) references usr(id),
 	"name" varchar(100),
 	body varchar(30000),
 	category_type smallint not null default 1,
 	ups int not null default 1,
-	downs int not null default 0,
 	del boolean not null default false
 );
 
@@ -132,13 +141,13 @@ do $$
 begin
 	for i in 1..100000 loop
 		for j in 1..10 loop
-			insert into memoir(place_id,"name",body,category_type,ups,downs,del) 
+			insert into memoir(place_id,usr_id,"name",body,category_type,ups,del) 
 			values(
+					i,
 					i,
 					random_name(10),
 					random_text(15),
 					cast( ((floor(random()*(5-1+1))+1)+random()) as integer ),
-					cast( ((floor(random()*(50-1+1))+1)+random()) as integer ),
 					cast( ((floor(random()*(50-1+1))+1)+random()) as integer ),
 					false
 			);
