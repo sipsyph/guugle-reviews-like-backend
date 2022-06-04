@@ -17,7 +17,7 @@ public class SQLGenericStatementBuilder {
 
 	public static StringBuilder orderBy(List<String> orderByAndSortByRequest, StringBuilder sqlStatement) {
 		System.out.println("Statement without order by and limit: "+sqlStatement+" ");
-		if(!orderByAndSortByRequest.isEmpty()) {
+		if(orderByAndSortByRequest!=null && !orderByAndSortByRequest.isEmpty() ) {
 			sqlStatement.append("ORDER BY ");
 		    
 		    int i=1;

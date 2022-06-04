@@ -10,43 +10,53 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties
 public class PlaceSearchRequest {
 	
-	private Long id;
-	private String searchString;
-	private List<String> orderByAndSortBy;
+	public List<Long> getId() {
+		return id;
+	}
+
+
+	public void setId(List<Long> id) {
+		this.id = id;
+	}
+
 
 	public String getSearchString() {
 		return searchString;
 	}
 
+
 	public void setSearchString(String searchString) {
 		this.searchString = searchString;
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
 
 	public List<String> getOrderByAndSortBy() {
 		return orderByAndSortBy;
 	}
 
-	public void setOrderByAndSortBy(List<String> orderBy) {
-		this.orderByAndSortBy = orderBy;
+
+	public void setOrderByAndSortBy(List<String> orderByAndSortBy) {
+		this.orderByAndSortBy = orderByAndSortBy;
 	}
+
+
+	@Override
+	public String toString() {
+		return "PlaceSearchRequest [id=" + id + ", searchString=" + searchString + ", orderByAndSortBy="
+				+ orderByAndSortBy + "]";
+	}
+
+
+	private List<Long> id;
+	private String searchString;
+	private List<String> orderByAndSortBy;
+
 	
 	public boolean isEmpty() {
-		if(id==null&&searchString==null) {
+		if((id==null||id.isEmpty())&&searchString==null) {
 			return true;
 		}
 		return false;
-	}
-	
-	public String toString() {
-		return getId()+" "+getSearchString()+" "+getOrderByAndSortBy().toString();
 	}
 	
 }

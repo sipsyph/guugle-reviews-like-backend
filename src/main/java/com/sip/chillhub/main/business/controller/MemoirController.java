@@ -12,18 +12,19 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.sip.chillhub.main.business.model.MemoirSearchRequest;
 import com.sip.chillhub.main.business.repository.MemoirRepository;
+import com.sip.chillhub.main.business.service.MemoirReadService;
 
 @RestController
 @RequestMapping("/memoir")
 public class MemoirController {
 
     @Autowired
-    private MemoirRepository memoirRepository;
+    private MemoirReadService memoirReadService;
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public String findAll(@RequestBody MemoirSearchRequest request) {
-        return "";//new Gson().toJson(memoirRepository.findBySearchRequestParameters(request));
+        return new Gson().toJson(memoirReadService.findAllBySearchRequest(request));
     }
  
     @GetMapping("/{id}")

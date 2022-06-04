@@ -27,8 +27,8 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 		if(!request.isEmpty()) {
 			sqlStatementUntilWherePredicate.append("WHERE ");
 			
-			if(request.getId()!=null) {
-				sqlStatementUntilWherePredicate.append("id = :id AND ");
+			if(request.getId()!=null && !request.getId().isEmpty()) {
+				sqlStatementUntilWherePredicate.append("id IN (:id) AND ");
 				sqlParams.addValue("id", request.getId());
 			}
 			
