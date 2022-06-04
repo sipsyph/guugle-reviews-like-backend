@@ -23,7 +23,7 @@ public class MemoirController {
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public String findAll(@RequestBody MemoirSearchRequest request) {
-        return new Gson().toJson(memoirRepository.findBySearchRequestParameters(request));
+        return "";//new Gson().toJson(memoirRepository.findBySearchRequestParameters(request));
     }
  
     @GetMapping("/{id}")

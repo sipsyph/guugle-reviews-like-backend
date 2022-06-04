@@ -6,24 +6,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 
+import com.sip.chillhub.main.business.model.MemoirSearchRequest;
 import com.sip.chillhub.main.business.model.PlaceSearchRequest;
+import com.sip.chillhub.main.business.repository.MemoirRepository;
 import com.sip.chillhub.main.business.repository.PlaceRepository;
 import com.sip.chillhub.main.infra.utils.SQLGenericStatementBuilder;
 
 @Service
-public class PlaceReadServiceImpl implements PlaceReadService {
+public class MemoirReadServiceImpl implements MemoirReadService {
 	
 	@Autowired
-	private PlaceRepository placeRepository;
+	private MemoirRepository memoirRepository;
 	
 	
 	@Override
-	public List<Long> findAllBySearchRequest(PlaceSearchRequest request){
+	public List<Long> findAllBySearchRequest(MemoirSearchRequest request){
 		//System.out.println(request.toString());
 		final StringBuilder sqlStatementUntilWhereClause = new StringBuilder(200); 
 		final StringBuilder sqlStatement = new StringBuilder(500);
 		MapSqlParameterSource sqlParams = new MapSqlParameterSource();
-		sqlStatementUntilWhereClause.append("SELECT id FROM place ");
+		sqlStatementUntilWhereClause.append("SELECT id FROM memoir ");
 		if(!request.isEmpty()) {
 			sqlStatementUntilWhereClause.append("WHERE ");
 			
@@ -55,7 +57,7 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 		
         System.out.println("Complete statement: "+sqlStatement+" ");
         
-		return placeRepository.findBySearchRequestParameters(sqlStatement.toString(), sqlParams);
+		return memoirRepository.findBySearchRequestParameters(sqlStatement.toString(), sqlParams);
 	}
 
 }

@@ -4,6 +4,8 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.sip.chillhub.main.infra.exception.SQLIException;
+
 public class SQLIValidator {
 
 	private final static String[] DDL_COMMANDS = { "create", "drop", "alter", "truncate", "comment", "sleep" };

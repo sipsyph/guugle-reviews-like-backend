@@ -1,6 +1,4 @@
-package com.sip.chillhub.main.infra.utils;
-
-import com.sip.chillhub.main.infra.exception.ApiDataValidationException;
+package com.sip.chillhub.main.infra.exception;
 
 public class SQLIException extends ApiDataValidationException {
 
