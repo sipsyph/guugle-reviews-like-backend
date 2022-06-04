@@ -7,9 +7,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 
 import com.sip.chillhub.main.business.model.MemoirSearchRequest;
-import com.sip.chillhub.main.business.model.PlaceSearchRequest;
 import com.sip.chillhub.main.business.repository.MemoirRepository;
-import com.sip.chillhub.main.business.repository.PlaceRepository;
 import com.sip.chillhub.main.infra.utils.SQLGenericStatementBuilder;
 
 @Service
@@ -32,6 +30,11 @@ public class MemoirReadServiceImpl implements MemoirReadService {
 			if(request.getId()!=null) {
 				sqlStatementUntilWherePredicate.append("id = :id AND ");
 				sqlParams.addValue("id", request.getId());
+			}
+			
+			if(request.getPlaceId()!=null) {
+				sqlStatementUntilWherePredicate.append("place_id = :placeId AND ");
+				sqlParams.addValue("placeId", request.getId());
 			}
 			
 			if(request.getSearchString()!=null) {

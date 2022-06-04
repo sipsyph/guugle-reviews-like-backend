@@ -9,6 +9,7 @@ public class MemoirSearchRequest {
 	private Long id;
 	private String searchString;
 	private Long categoryId;
+	private Long placeId;
 	private List<String> orderByAndSortBy;
 
 	public String getSearchString() {
@@ -44,17 +45,19 @@ public class MemoirSearchRequest {
 	}
 	
 	public boolean isEmpty() {
-		if(orderByAndSortBy.isEmpty()&&
-				categoryId==null&&
-				id==null&&
-				searchString==null) {
+		if(categoryId==null&&id==null&&searchString==null&&
+				placeId==null) {
 			return true;
 		}
 		return false;
 	}
-	
-	public String toString() {
-		return getId()+" "+getSearchString()+" "+getCategoryId()+" "+getOrderByAndSortBy().toString();
+
+	public Long getPlaceId() {
+		return placeId;
+	}
+
+	public void setPlaceId(Long placeId) {
+		this.placeId = placeId;
 	}
 	
 }

@@ -5,14 +5,14 @@ import java.util.List;
 public class SQLGenericStatementBuilder {
 	
 	public static StringBuilder removeLastOccurrenceOfAndKeyword(StringBuilder sqlStatement) {
+		System.out.println("Statement before removal of AND: "+sqlStatement+" ");
 		final int indexOfLastAnd = sqlStatement.lastIndexOf("AND");
 		
 		if(indexOfLastAnd==-1) {
-			sqlStatement.append(sqlStatement);
+			return sqlStatement;
 		}else {
-			sqlStatement.append(sqlStatement.substring(0, indexOfLastAnd));
+			return new StringBuilder(sqlStatement.capacity()).append(sqlStatement.substring(0, indexOfLastAnd));
 		}
-		return sqlStatement;
 	}
 
 	public static StringBuilder orderBy(List<String> orderByAndSortByRequest, StringBuilder sqlStatement) {
