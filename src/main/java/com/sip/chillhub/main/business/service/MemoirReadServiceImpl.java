@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 
+import com.sip.chillhub.main.business.model.Memoir;
 import com.sip.chillhub.main.business.model.MemoirSearchRequest;
 import com.sip.chillhub.main.business.repository.MemoirRepository;
 import com.sip.chillhub.main.infra.utils.SQLGenericStatementBuilder;
@@ -17,13 +18,19 @@ public class MemoirReadServiceImpl implements MemoirReadService {
 	private MemoirRepository memoirRepository;
 	
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<Long> findAllBySearchRequest(MemoirSearchRequest request){
+	public <T> List<T> findAllBySearchRequest(MemoirSearchRequest request){
 		System.out.println(request.toString());
 		final StringBuilder sqlStatementUntilWherePredicate = new StringBuilder(200); 
 		final StringBuilder sqlStatement = new StringBuilder(500);
 		MapSqlParameterSource sqlParams = new MapSqlParameterSource();
-		sqlStatementUntilWherePredicate.append("SELECT id FROM memoir ");
+		if(request.isObj()) {
+			sqlStatementUntilWherePredicate.append("SELECT * FROM memoir ");
+		}else {
+			sqlStatementUntilWherePredicate.append("SELECT id FROM memoir ");
+		}
+		
 		if(!request.isEmpty()) {
 			sqlStatementUntilWherePredicate.append("WHERE ");
 			
@@ -32,9 +39,19 @@ public class MemoirReadServiceImpl implements MemoirReadService {
 				sqlParams.addValue("id", request.getId());
 			}
 			
+			if(request.getCategoryType() != null && !request.getCategoryType().isEmpty()) {
+				sqlStatementUntilWherePredicate.append("category_type IN (:categoryType) AND ");
+				sqlParams.addValue("categoryType", request.getCategoryType());
+			}
+			
 			if(request.getPlaceId() != null && !request.getPlaceId().isEmpty()) {
 				sqlStatementUntilWherePredicate.append("place_id IN (:placeId) AND ");
 				sqlParams.addValue("placeId", request.getPlaceId());
+			}
+			
+			if(request.getUsrId() != null && !request.getUsrId().isEmpty()) {
+				sqlStatementUntilWherePredicate.append("usr_id IN (:usrId) AND ");
+				sqlParams.addValue("usrId", request.getUsrId());
 			}
 			
 			if(request.getSearchString()!=null) {
@@ -45,18 +62,35 @@ public class MemoirReadServiceImpl implements MemoirReadService {
 				sqlParams.addValue("searchString", request.getSearchString());
 			}
 			
-			return memoirRepository.findBySearchRequestParameters(
+			if(request.isObj()) {
+				return (List<T>) memoirRepository.findMemoirBySearchRequestParameters(
+						SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), 
+								SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementUntilWherePredicate)).toString(), 
+						sqlParams);
+			}
+			
+			return (List<T>) memoirRepository.findIdBySearchRequestParameters(
 					SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), 
 							SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementUntilWherePredicate)).toString(), 
 					sqlParams);
 			
 		}else {
 			sqlStatement.append(sqlStatementUntilWherePredicate);
-			
-			return memoirRepository.findBySearchRequestParameters(
+			if(request.isObj()) {
+				return (List<T>) memoirRepository.findMemoirBySearchRequestParameters(
+						SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), sqlStatement).toString(), 
+						sqlParams);
+			}
+			return (List<T>) memoirRepository.findIdBySearchRequestParameters(
 					SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), sqlStatement).toString(), 
 					sqlParams);
 		}
+	}
+	
+	public Long addMemoir(Memoir memoir) {
+		System.out.println(memoir.toString());
+		final StringBuilder sqlStatement = new StringBuilder(200); 
+		return null;
 	}
 
 }

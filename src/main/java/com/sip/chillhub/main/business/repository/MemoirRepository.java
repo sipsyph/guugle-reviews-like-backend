@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import com.sip.chillhub.main.business.model.Memoir;
 import com.sip.chillhub.main.business.model.MemoirSearchRequest;
 
 @Repository
@@ -23,7 +24,7 @@ public class MemoirRepository {
 	@Autowired
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 	
-	public List<Long> findBySearchRequestParameters(String sqlStatement, MapSqlParameterSource sqlParams){
+	public List<Long> findIdBySearchRequestParameters(String sqlStatement, MapSqlParameterSource sqlParams){
         
         List<Long> idList = namedParameterJdbcTemplate.queryForList(
         		sqlStatement.toString(), 
@@ -32,6 +33,29 @@ public class MemoirRepository {
         
         if(idList.size()>0) {
         	return idList;
+        }
+        
+        return null;
+	}
+	
+	public List<Memoir> findMemoirBySearchRequestParameters(String sqlStatement, MapSqlParameterSource sqlParams){
+        
+        List<Memoir> memoirs = namedParameterJdbcTemplate.query(
+        		sqlStatement.toString(), 
+        		sqlParams,
+        		(rs, rowNum) -> new Memoir(
+        				rs.getLong("id"),
+        				rs.getLong("place_id"),
+        				rs.getLong("usr_id"),
+        				rs.getString("name"),
+        				rs.getString("body"),
+        				rs.getInt("category_type"),
+        				rs.getInt("ups"),
+        				rs.getBoolean("del")
+        				));
+        
+        if(memoirs.size()>0) {
+        	return memoirs;
         }
         
         return null;

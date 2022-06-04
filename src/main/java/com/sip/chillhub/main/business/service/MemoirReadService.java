@@ -6,6 +6,6 @@ import com.sip.chillhub.main.business.model.MemoirSearchRequest;
 
 public interface MemoirReadService {
 
-	List<Long> findAllBySearchRequest(MemoirSearchRequest request);
+	<T> List<T> findAllBySearchRequest(MemoirSearchRequest request);
 
 }
