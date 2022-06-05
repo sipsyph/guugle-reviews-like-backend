@@ -6,6 +6,6 @@ import com.sip.chillhub.main.business.model.User;
 
 public interface UserWriteService {
 
-	String createUser(User user);
+	Long createUser(User user);
 	
 }

@@ -3,6 +3,8 @@ package com.sip.chillhub.main.business.repository;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -54,7 +56,20 @@ public class UserRepository {
         return null;
 	}
 	
-	public Integer createUser(String sqlStatement, MapSqlParameterSource sqlParams) {
-		return namedParameterJdbcTemplate.update(sqlStatement, sqlParams);
+	public Long createUser(String sqlStatement, MapSqlParameterSource sqlParams) {
+		
+		Long idOfCreatedUser = null;
+		
+		try {
+			idOfCreatedUser = namedParameterJdbcTemplate.queryForObject(sqlStatement, sqlParams, Long.class);
+		} catch (EmptyResultDataAccessException e) {
+			System.out.println(e.getMostSpecificCause());
+		}
+		
+		if(idOfCreatedUser!=null) {
+			return idOfCreatedUser;
+		}else {
+			return null;
+		}
 	}
 }

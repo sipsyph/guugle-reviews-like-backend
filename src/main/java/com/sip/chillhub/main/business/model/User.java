@@ -2,6 +2,9 @@ package com.sip.chillhub.main.business.model;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+@JsonDeserialize
 public class User {
 	
 	public Long getId() {
@@ -89,6 +92,9 @@ public class User {
 		this.nameStyle = nameStyle;
 		this.lastLoginDate = lastLoginDate;
 		this.del = del;
+	}
+	public User() {
+		
 	}
 	private Long id;
 	private String name;
