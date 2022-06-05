@@ -38,6 +38,14 @@ public class PlaceSearchRequest {
 	public void setOrderByAndSortBy(List<String> orderByAndSortBy) {
 		this.orderByAndSortBy = orderByAndSortBy;
 	}
+	
+	public boolean isObj() {
+		return obj;
+	}
+
+	public void setObj(boolean obj) {
+		this.obj = obj;
+	}
 
 
 	@Override
@@ -50,6 +58,7 @@ public class PlaceSearchRequest {
 	private List<Long> id;
 	private String searchString;
 	private List<String> orderByAndSortBy;
+	private boolean obj;
 
 	
 	public boolean isEmpty() {
@@ -58,5 +67,8 @@ public class PlaceSearchRequest {
 		}
 		return false;
 	}
+
+
+
 	
 }

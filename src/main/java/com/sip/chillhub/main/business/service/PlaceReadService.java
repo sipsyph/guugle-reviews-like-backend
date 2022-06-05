@@ -6,6 +6,6 @@ import com.sip.chillhub.main.business.model.PlaceSearchRequest;
 
 public interface PlaceReadService {
 
-	List<Long> findAllBySearchRequest(PlaceSearchRequest request);
+	<T> List<T> findAllBySearchRequest(PlaceSearchRequest request);
 
 }

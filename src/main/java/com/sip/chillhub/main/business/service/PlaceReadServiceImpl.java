@@ -17,13 +17,18 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 	private PlaceRepository placeRepository;
 	
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<Long> findAllBySearchRequest(PlaceSearchRequest request){
+	public <T> List<T> findAllBySearchRequest(PlaceSearchRequest request){
 		//System.out.println(request.toString());
 		final StringBuilder sqlStatementUntilWherePredicate = new StringBuilder(200); 
 		final StringBuilder sqlStatement = new StringBuilder(500);
 		MapSqlParameterSource sqlParams = new MapSqlParameterSource();
-		sqlStatementUntilWherePredicate.append("SELECT id FROM place ");
+		if(request.isObj()) {
+			sqlStatementUntilWherePredicate.append("SELECT * FROM place ");
+		}else {
+			sqlStatementUntilWherePredicate.append("SELECT id FROM place ");
+		}
 		if(!request.isEmpty()) {
 			sqlStatementUntilWherePredicate.append("WHERE ");
 			
@@ -37,7 +42,14 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 				sqlParams.addValue("searchString", request.getSearchString());
 			}
 			
-			return placeRepository.findBySearchRequestParameters(
+			if(request.isObj()) {
+				return (List<T>) placeRepository.findMemoirBySearchRequestParameters(
+						SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), 
+								SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementUntilWherePredicate)).toString(), 
+						sqlParams);
+			}
+			
+			return (List<T>) placeRepository.findIdBySearchRequestParameters(
 					SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), 
 							SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementUntilWherePredicate)).toString(), 
 					sqlParams);
@@ -45,7 +57,12 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 		}else {
 			sqlStatement.append(sqlStatementUntilWherePredicate);
 			
-			return placeRepository.findBySearchRequestParameters(
+			if(request.isObj()) {
+				return (List<T>) placeRepository.findMemoirBySearchRequestParameters(
+						SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), sqlStatement).toString(), 
+						sqlParams);
+			}
+			return (List<T>) placeRepository.findIdBySearchRequestParameters(
 					SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), sqlStatement).toString(), 
 					sqlParams);
 		}
