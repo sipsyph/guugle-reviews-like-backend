@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.sip.chillhub.main.business.model.PlaceSearchRequest;
 import com.sip.chillhub.main.business.repository.PlaceRepository;
-import com.sip.chillhub.main.infra.utils.SQLGenericStatementBuilder;
+import com.sip.chillhub.main.infra.utils.sql.SQLGenericStatementBuilder;
 
 @Service
 public class PlaceReadServiceImpl implements PlaceReadService {

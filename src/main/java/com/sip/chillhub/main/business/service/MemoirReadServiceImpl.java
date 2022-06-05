@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.sip.chillhub.main.business.model.Memoir;
 import com.sip.chillhub.main.business.model.MemoirSearchRequest;
 import com.sip.chillhub.main.business.repository.MemoirRepository;
-import com.sip.chillhub.main.infra.utils.SQLGenericStatementBuilder;
+import com.sip.chillhub.main.infra.utils.sql.SQLGenericStatementBuilder;
 
 @Service
 public class MemoirReadServiceImpl implements MemoirReadService {

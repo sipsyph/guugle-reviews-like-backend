@@ -1,4 +1,4 @@
-package com.sip.chillhub.main.infra.utils;
+package com.sip.chillhub.main.infra.utils.sql;
 
 import java.util.List;
 
