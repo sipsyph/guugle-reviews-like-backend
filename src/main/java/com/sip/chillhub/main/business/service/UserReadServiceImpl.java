@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.sip.chillhub.main.business.model.UserSearchRequest;
 import com.sip.chillhub.main.business.repository.UserRepository;
-import com.sip.chillhub.main.infra.utils.SQLGenericStatementBuilder;
+import com.sip.chillhub.main.infra.utils.sql.SQLGenericStatementBuilder;
 
 @Service
 public class UserReadServiceImpl implements UserReadService {

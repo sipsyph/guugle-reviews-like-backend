@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-
-import com.sip.chillhub.main.business.model.Place;
 import com.sip.chillhub.main.business.model.User;
 
 @Repository
@@ -54,5 +52,9 @@ public class UserRepository {
         }
         
         return null;
+	}
+	
+	public Integer createUser(String sqlStatement, MapSqlParameterSource sqlParams) {
+		return namedParameterJdbcTemplate.update(sqlStatement, sqlParams);
 	}
 }
