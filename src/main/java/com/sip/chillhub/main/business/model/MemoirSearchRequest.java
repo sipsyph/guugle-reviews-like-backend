@@ -54,6 +54,22 @@ public class MemoirSearchRequest {
 		this.categoryType = categoryType;
 	}
 
+	public List<Integer> getDescType() {
+		return descType;
+	}
+
+	public void setDescType(List<Integer> descType) {
+		this.descType = descType;
+	}
+
+	public List<Integer> getPeopleTrafficType() {
+		return peopleTrafficType;
+	}
+
+	public void setPeopleTrafficType(List<Integer> peopleTrafficType) {
+		this.peopleTrafficType = peopleTrafficType;
+	}
+
 	public boolean isObj() {
 		return obj;
 	}
@@ -65,8 +81,8 @@ public class MemoirSearchRequest {
 	@Override
 	public String toString() {
 		return "MemoirSearchRequest [id=" + id + ", searchString=" + searchString + ", placeId=" + placeId + ", usrId="
-				+ usrId + ", orderByAndSortBy=" + orderByAndSortBy + ", categoryType=" + categoryType + ", obj=" + obj
-				+ "]";
+				+ usrId + ", orderByAndSortBy=" + orderByAndSortBy + ", categoryType=" + categoryType + ", descType="
+				+ descType + ", peopleTrafficType=" + peopleTrafficType + ", obj=" + obj + "]";
 	}
 
 	private List<Long> id;
@@ -75,6 +91,8 @@ public class MemoirSearchRequest {
 	private List<Long> usrId;
 	private List<String> orderByAndSortBy;
 	private List<Integer> categoryType;
+	private List<Integer> descType;
+	private List<Integer> peopleTrafficType;
 	private boolean obj;
 
 	public boolean isEmpty() {
@@ -82,6 +100,8 @@ public class MemoirSearchRequest {
 				(placeId==null||placeId.isEmpty())&&
 				(usrId==null||usrId.isEmpty())&&
 				(categoryType==null||categoryType.isEmpty())&&
+				(descType==null||descType.isEmpty())&&
+				(peopleTrafficType==null||peopleTrafficType.isEmpty())&&
 				searchString==null) {
 			return true;
 		}

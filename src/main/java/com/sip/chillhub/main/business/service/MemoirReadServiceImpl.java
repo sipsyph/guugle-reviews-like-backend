@@ -44,6 +44,16 @@ public class MemoirReadServiceImpl implements MemoirReadService {
 				sqlParams.addValue("categoryType", request.getCategoryType());
 			}
 			
+			if(request.getDescType() != null && !request.getDescType().isEmpty()) {
+				sqlStatementUntilWherePredicate.append("desc_type IN (:descType) AND ");
+				sqlParams.addValue("descType", request.getDescType());
+			}
+			
+			if(request.getPeopleTrafficType() != null && !request.getPeopleTrafficType().isEmpty()) {
+				sqlStatementUntilWherePredicate.append("people_traffic_type IN (:peopleTrafficType) AND ");
+				sqlParams.addValue("peopleTrafficType", request.getPeopleTrafficType());
+			}
+			
 			if(request.getPlaceId() != null && !request.getPlaceId().isEmpty()) {
 				sqlStatementUntilWherePredicate.append("place_id IN (:placeId) AND ");
 				sqlParams.addValue("placeId", request.getPlaceId());
