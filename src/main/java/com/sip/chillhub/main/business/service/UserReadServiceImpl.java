@@ -32,12 +32,12 @@ public class UserReadServiceImpl implements UserReadService {
 		if(!request.isEmpty()) {
 			sqlStatementUntilWherePredicate.append("WHERE ");
 			
-			if(request.getId()!=null) {
-				sqlStatementUntilWherePredicate.append("id = :id AND ");
+			if(request.getId()!=null && !request.getId().isEmpty()) {
+				sqlStatementUntilWherePredicate.append("id IN (:id) AND ");
 				sqlParams.addValue("id", request.getId());
 			}
 			
-			if(request.getName()!=null) {
+			if(request.getName()!=null && !request.getName().isEmpty()) {
 				sqlStatementUntilWherePredicate.append("name LIKE :name AND ");
 				sqlParams.addValue("name", request.getName());
 			}

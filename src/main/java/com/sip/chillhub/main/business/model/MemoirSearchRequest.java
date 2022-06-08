@@ -4,23 +4,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties
-public class MemoirSearchRequest {
-
-	public List<Long> getId() {
-		return id;
-	}
-
-	public void setId(List<Long> id) {
-		this.id = id;
-	}
-
-	public String getSearchString() {
-		return searchString;
-	}
-
-	public void setSearchString(String searchString) {
-		this.searchString = searchString;
-	}
+public class MemoirSearchRequest extends BaseSearchRequest {
 
 	public List<Long> getPlaceId() {
 		return placeId;
@@ -36,14 +20,6 @@ public class MemoirSearchRequest {
 
 	public void setUsrId(List<Long> usrId) {
 		this.usrId = usrId;
-	}
-
-	public List<String> getOrderByAndSortBy() {
-		return orderByAndSortBy;
-	}
-
-	public void setOrderByAndSortBy(List<String> orderByAndSortBy) {
-		this.orderByAndSortBy = orderByAndSortBy;
 	}
 
 	public List<Integer> getCategoryType() {
@@ -70,30 +46,11 @@ public class MemoirSearchRequest {
 		this.peopleTrafficType = peopleTrafficType;
 	}
 
-	public boolean isObj() {
-		return obj;
-	}
-
-	public void setObj(boolean obj) {
-		this.obj = obj;
-	}
-
-	@Override
-	public String toString() {
-		return "MemoirSearchRequest [id=" + id + ", searchString=" + searchString + ", placeId=" + placeId + ", usrId="
-				+ usrId + ", orderByAndSortBy=" + orderByAndSortBy + ", categoryType=" + categoryType + ", descType="
-				+ descType + ", peopleTrafficType=" + peopleTrafficType + ", obj=" + obj + "]";
-	}
-
-	private List<Long> id;
-	private String searchString;
 	private List<Long> placeId;
 	private List<Long> usrId;
-	private List<String> orderByAndSortBy;
 	private List<Integer> categoryType;
 	private List<Integer> descType;
 	private List<Integer> peopleTrafficType;
-	private boolean obj;
 
 	public boolean isEmpty() {
 		if((id==null||id.isEmpty())&&

@@ -41,7 +41,6 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 		}
 		
 		if(!request.isMemoirAttributesEmpty()) {
-			boolean memoirExtraWherePredicateEmpty = true; 
 			final StringBuilder sqlStatementMemoirJoin = new StringBuilder(200);
 			sqlStatementMemoirJoin.append("INNER JOIN LATERAL ( ");
 			sqlStatementMemoirJoin.append("SELECT SUM(m.ups) AS upvotes FROM memoir m ");
@@ -49,20 +48,17 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 			
 			if(request.getCategoryType()!=null && !request.getCategoryType().isEmpty()) {
 				sqlStatementMemoirJoin.append("m.category_type IN (:categoryType) AND ");
-				sqlParams.addValue("categoryType", request.getId());
-				memoirExtraWherePredicateEmpty = false;
+				sqlParams.addValue("categoryType", request.getCategoryType());
 			}
 			
 			if(request.getDescType()!=null && !request.getDescType().isEmpty()) {
 				sqlStatementMemoirJoin.append("m.desc_type IN (:descType) AND ");
 				sqlParams.addValue("descType", request.getDescType());
-				memoirExtraWherePredicateEmpty = false;
 			}
 			
 			if(request.getPeopleTrafficType()!=null && !request.getPeopleTrafficType().isEmpty()) {
 				sqlStatementMemoirJoin.append("m.people_traffic_type IN (:peopleTrafficType) AND ");
 				sqlParams.addValue("peopleTrafficType", request.getPeopleTrafficType());
-				memoirExtraWherePredicateEmpty = false;
 			}
 			
 			

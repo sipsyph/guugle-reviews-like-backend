@@ -8,29 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties
-public class PlaceSearchRequest {
-
-
-
-	public List<Long> getId() {
-		return id;
-	}
-
-
-	public void setId(List<Long> id) {
-		this.id = id;
-	}
-
-
-	public String getSearchString() {
-		return searchString;
-	}
-
-
-	public void setSearchString(String searchString) {
-		this.searchString = searchString;
-	}
-
+public class PlaceSearchRequest extends BaseSearchRequest {
 
 	public List<Integer> getCategoryType() {
 		return categoryType;
@@ -89,42 +67,18 @@ public class PlaceSearchRequest {
 	public void setSortByUpvotes(String sortByUpvotes) {
 		this.sortByUpvotes = sortByUpvotes;
 	}
-
-	public List<String> getOrderByAndSortBy() {
-		return orderByAndSortBy;
-	}
-
-
-	public void setOrderByAndSortBy(List<String> orderByAndSortBy) {
-		this.orderByAndSortBy = orderByAndSortBy;
-	}
-
-
-	public boolean isObj() {
-		return obj;
-	}
-
-
-	public void setObj(boolean obj) {
-		this.obj = obj;
-	}
 	
-	private List<Long> id;
-	private String searchString;
 	private List<Integer> categoryType;
 	private List<Integer> descType;
 	private List<Integer> peopleTrafficType;
 	private Double coordinatesX;
 	private Double coordinatesY;
 	private String sortByUpvotes;
-	private List<String> orderByAndSortBy;
-	private boolean obj;
 
 	
 	public boolean isEmpty() {
 		if(
-				(id==null||id.isEmpty())&&
-				searchString==null&&
+				isEmptyBase()&&
 				coordinatesX==null&&
 				coordinatesY==null) {
 			return true;
