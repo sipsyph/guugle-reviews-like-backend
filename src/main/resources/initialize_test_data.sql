@@ -2,10 +2,10 @@ Create or replace function random_text(length integer) returns text as
 $$
 declare
   chars text[] := '{ chillhub , lorem ipsum , pasabugen , getaway , service , platform , lozol , akala mo talaga eh ,
- itigil mo kalokohan mo , makulet ka? , kanban , pain , high like the buildings in makati , Itoy pagpapalipas ng gabi sa tabi ng mambabarang. 
-Kaya dudukutin ko na agad yung isang mata mo laglag din yung kabila. Lalagariin ka nang braso putol din yung kaliwa. 
-Sasaksakin ng mababaw sa leeg butas din yaong batok. Mamartilyuhin ng isa sa ulo pero dalawa yaong dadagok. 
-Babarilin ng isa sa dibdib dalawang bala yung papasok Palulunukin ng isang granada pero dalawa yaong sasabog. 
+ itigil mo kalokohan mo , makulet ka? , kanban , pain , high like the buildings in makati , Itoy pagpapalipas ng gabi sa tabi ng mambabarang, 
+Kaya dudukutin ko na agad yung isang mata mo laglag din yung kabila, Lalagariin ka nang braso putol din yung kaliwa, 
+Sasaksakin ng mababaw sa leeg butas din yaong batok, Mamartilyuhin ng isa sa ulo pero dalawa yaong dadagok, 
+Babarilin ng isa sa dibdib dalawang bala yung papasok Palulunukin ng isang granada pero dalawa yaong sasabog, 
 O bakit doble lagi yung resulta sa sinasabi mo na kulang? Hindi kaya ikaw din yung ginagamit na manika habang ikaw yung kinukulam?!}';
   result text := '';
   i integer := 0;
@@ -42,6 +42,8 @@ $$ language plpgsql;
 
 --select random_text(50);
 --select random_name(3);
+--select encode(gen_random_bytes(30),'base64') 
+--select cast(current_date - (random() * (interval '360 days')) + '1 days' as date);
 
 ---------------------------------------------------------------------------------------------------------
 --PLACE
@@ -53,11 +55,10 @@ create table place
 	display_name varchar(200),
 	"name" varchar(200),
 	coordinates_x decimal(15,2) not null default 0,
-	coordinates_y decimal(15,2) not null default 0, 
-	avg_rating decimal(15,2) not null default 0,
-	memoirs_amount integer not null default 0, 
-	engages_amount integer not null default 0
+	coordinates_y decimal(15,2) not null default 0
 );
+
+
 
 create extension if not exists pgcrypto;
 
@@ -66,16 +67,12 @@ truncate table place cascade;
 do $$
 begin
 for r in 1..100000 loop
-insert into place(display_name,"name", coordinates_x,coordinates_y, 
-avg_rating, memoirs_amount, engages_amount) 
+insert into place(display_name,"name", coordinates_x,coordinates_y) 
 values(
 		encode(gen_random_bytes(30),'base64'),
 		encode(gen_random_bytes(30),'base64'),
 		cast( ((floor(random()*(500000-1000+1))+10)+random()) as decimal(15,2) ),
-		cast( ((floor(random()*(500000-1000+1))+10)+random()) as decimal(15,2) ),
-		cast( ((floor(random()*(5-1+1))+1)+random()) as decimal(3,2) ),
-		50,
-		75
+		cast( ((floor(random()*(500000-1000+1))+10)+random()) as decimal(15,2) )
 );
 end loop;
 end;
@@ -88,12 +85,16 @@ create table usr
 ( 
 	id serial constraint usr_pk primary key,
 	"name" varchar(50),
+	constraint constraint_name unique("name"),
 	pass varchar(50),
 	"desc" varchar(10000),
+	usr_type SMALLINT NOT NULL DEFAULT 1,
+	is_premium boolean not null default false,
 	coins integer not null default 0,
 	avatar_img varchar(50),
 	name_style smallint,
 	last_login_date date not null default current_date,
+	created_date date not null default current_date,
 	del boolean not null default false
 );
 
@@ -102,15 +103,18 @@ truncate table usr cascade;
 do $$
 begin
 for r in 1..100000 loop
-insert into usr("name", pass,"desc",coins,avatar_img,name_style,last_login_date,del) 
+insert into usr("name", pass,"desc",usr_type,is_premium,coins,avatar_img,name_style,last_login_date,created_date,del) 
 values(
-		random_name(3),
+		random_name(3) || r,
 		encode(gen_random_bytes(4),'base64'),
 		random_text(10),
+		cast( ((floor(random()*(5-1+1))+1)+random()) as integer ),
+		false,
 		cast( ((floor(random()*(5000-1+1))+1)+random()) as integer ),
 		encode(gen_random_bytes(4),'base64'),
 		cast( ((floor(random()*(30-1+1))+1)+random()) as integer ),
-		current_date,
+		cast(current_date - (random() * (interval '360 days')) + '1 days' as date),
+		cast(current_date - (random() * (interval '360 days')) + '1 days' as date),
 		false
 );
 end loop;
@@ -131,23 +135,51 @@ create table memoir
 	"name" varchar(100),
 	body varchar(30000),
 	category_type smallint not null default 1,
+	desc_type smallint not null default 1,
+	people_traffic_type smallint not null default 1,
+	created_date date not null default current_date,
 	ups int not null default 1,
+	downs int not null default 0,
 	del boolean not null default false
 );
 
+create index memoir_place_id_idx
+on memoir(place_id);
+
+--create index memoir_category_type_idx
+--on memoir(category_type);
+--
+--create index memoir_desc_type_idx
+--on memoir(desc_type);
+--
+--create index memoir_people_traffic_type_idx
+--on memoir(people_traffic_type);
+
+--create index memoir_name_idx
+--on memoir(name);
+--
+--create index memoir_body_idx
+--on memoir(body);
+
 truncate table memoir cascade;
 
+--Total time (ms)	88744  on 100k records
+--Execute time (ms)	1315677 on 1m records
 do $$
 begin
 	for i in 1..100000 loop
 		for j in 1..10 loop
-			insert into memoir(place_id,usr_id,"name",body,category_type,ups,del) 
+			insert into memoir(place_id,usr_id,"name",body,category_type,desc_type,people_traffic_type,created_date,ups,downs,del) 
 			values(
 					i,
 					i,
 					random_name(10),
 					random_text(15),
 					cast( ((floor(random()*(5-1+1))+1)+random()) as integer ),
+					cast( ((floor(random()*(5-1+1))+1)+random()) as integer ),
+					cast( ((floor(random()*(5-1+1))+1)+random()) as integer ),
+					cast(current_date - (random() * (interval '360 days')) + '1 days' as date),
+					cast( ((floor(random()*(50-1+1))+1)+random()) as integer ),
 					cast( ((floor(random()*(50-1+1))+1)+random()) as integer ),
 					false
 			);
