@@ -22,13 +22,16 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 	@Override
 	public <T> List<T> findAllBySearchRequest(PlaceSearchRequest request){
 		//System.out.println(request.toString());
-		final StringBuilder sqlStatementUntilWherePredicate = new StringBuilder(200); 
+		final StringBuilder sqlStatementBeforeWherePredicate = new StringBuilder(200);
+		final StringBuilder sqlStatementAfterWherePredicate = new StringBuilder(200);
 		final StringBuilder sqlStatement = new StringBuilder(500);
 		MapSqlParameterSource sqlParams = new MapSqlParameterSource();
+		boolean wherePredicateEmpty = true;
+		
 		if(request.isObj()) {
-			sqlStatementUntilWherePredicate.append("SELECT * FROM place p ");
+			sqlStatementBeforeWherePredicate.append("SELECT * FROM place p ");
 		}else {
-			sqlStatementUntilWherePredicate.append("SELECT id FROM place p ");
+			sqlStatementBeforeWherePredicate.append("SELECT id FROM place p ");
 		}
 		
 		List<String> orderByAndSortByRequest = new ArrayList<>();
@@ -38,93 +41,83 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 		}
 		
 		if(!request.isMemoirAttributesEmpty()) {
-			
-			sqlStatementUntilWherePredicate.append("INNER JOIN LATERAL ( ");
-			sqlStatementUntilWherePredicate.append("SELECT SUM(m.ups) AS upvotes FROM memoir m ");
-			
-			if(!request.isMemoirAttributesEmptyExceptUpvotesSort()) {
-				sqlStatementUntilWherePredicate.append("WHERE");
-			}
+			boolean memoirExtraWherePredicateEmpty = true; 
+			final StringBuilder sqlStatementMemoirJoin = new StringBuilder(200);
+			sqlStatementMemoirJoin.append("INNER JOIN LATERAL ( ");
+			sqlStatementMemoirJoin.append("SELECT SUM(m.ups) AS upvotes FROM memoir m ");
+			sqlStatementMemoirJoin.append("WHERE m.place_id = p.id AND ");
 			
 			if(request.getCategoryType()!=null && !request.getCategoryType().isEmpty()) {
-				sqlStatementUntilWherePredicate.append("m.category_type IN (:categoryType) AND ");
+				sqlStatementMemoirJoin.append("m.category_type IN (:categoryType) AND ");
 				sqlParams.addValue("categoryType", request.getId());
+				memoirExtraWherePredicateEmpty = false;
 			}
 			
 			if(request.getDescType()!=null && !request.getDescType().isEmpty()) {
-				sqlStatementUntilWherePredicate.append("m.desc_type IN (:descType) AND ");
+				sqlStatementMemoirJoin.append("m.desc_type IN (:descType) AND ");
 				sqlParams.addValue("descType", request.getDescType());
+				memoirExtraWherePredicateEmpty = false;
 			}
 			
 			if(request.getPeopleTrafficType()!=null && !request.getPeopleTrafficType().isEmpty()) {
-				sqlStatementUntilWherePredicate.append("m.people_traffic_type IN (:peopleTrafficType) AND ");
+				sqlStatementMemoirJoin.append("m.people_traffic_type IN (:peopleTrafficType) AND ");
 				sqlParams.addValue("peopleTrafficType", request.getPeopleTrafficType());
+				memoirExtraWherePredicateEmpty = false;
 			}
 			
-			sqlStatementUntilWherePredicate.append("GROUP BY m.place_id ) AS memoir ON true ");
+			
+			
+			sqlStatementBeforeWherePredicate.append(
+					SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementMemoirJoin))
+			.append("GROUP BY m.place_id ) AS memoir ON TRUE ");
 			
 		}
 			
 		if(!request.isEmpty()) {
 			
-			sqlStatementUntilWherePredicate.append("WHERE ");
-			
 			if(request.getId()!=null && !request.getId().isEmpty()) {
-				sqlStatementUntilWherePredicate.append("p.id IN (:id) AND ");
+				sqlStatementAfterWherePredicate.append("p.id IN (:id) AND ");
 				sqlParams.addValue("id", request.getId());
+				wherePredicateEmpty = false;
 			}
 			
 			if(request.getSearchString()!=null) {
-				sqlStatementUntilWherePredicate.append("p.name LIKE :searchString AND ");
+				sqlStatementAfterWherePredicate.append("p.name LIKE :searchString AND ");
 				sqlParams.addValue("searchString", request.getSearchString());
+				wherePredicateEmpty = false;
 			}
 			
-			if(request.getSortByUpvotes()!=null) {
-				System.out.println(request.getSortByUpvotes());
-				orderByAndSortByRequest.add("memoir.upvotes "+request.getSortByUpvotes());
-			}
-			
-			if(request.getCoordinatesX()!=null && request.getCoordinatesY()!=null) {
-				orderByAndSortByRequest.add("abs(p.coordinates_x-:userCoordinatesX) + abs(p.coordinates_y-:userCoordinatesY) ASC");
-				sqlParams.addValue("userCoordinatesX", request.getCoordinatesX());
-				sqlParams.addValue("userCoordinatesY", request.getCoordinatesY());
-			}
-			
-			if(request.isObj()) {
-				return (List<T>) placeRepository.findMemoirBySearchRequestParameters(
-						SQLGenericStatementBuilder.orderBy(orderByAndSortByRequest, 
-								SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementUntilWherePredicate)).toString(), 
-						sqlParams);
-			}
-			
-			return (List<T>) placeRepository.findIdBySearchRequestParameters(
-					SQLGenericStatementBuilder.orderBy(orderByAndSortByRequest, 
-							SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementUntilWherePredicate)).toString(), 
-					sqlParams);
-			
+		}
+		
+		if(request.getSortByUpvotes()!=null) {
+			System.out.println(request.getSortByUpvotes());
+			orderByAndSortByRequest.add("memoir.upvotes "+request.getSortByUpvotes());
+		}
+		
+		if(request.getCoordinatesX()!=null && request.getCoordinatesY()!=null) {
+			orderByAndSortByRequest.add("abs(p.coordinates_x-:userCoordinatesX) + abs(p.coordinates_y-:userCoordinatesY) ASC");
+			sqlParams.addValue("userCoordinatesX", request.getCoordinatesX());
+			sqlParams.addValue("userCoordinatesY", request.getCoordinatesY());
+		}
+		
+		if(wherePredicateEmpty) {
+			sqlStatement.append(sqlStatementBeforeWherePredicate);
 		}else {
-			sqlStatement.append(sqlStatementUntilWherePredicate);
-			
-			if(request.getSortByUpvotes()!=null) {
-				System.out.println(request.getSortByUpvotes());
-				orderByAndSortByRequest.add("memoir.upvotes "+request.getSortByUpvotes());
-			}
-			
-			if(request.getCoordinatesX()!=null && request.getCoordinatesY()!=null) {
-				orderByAndSortByRequest.add("abs(p.coordinates_x-:userCoordinatesX) + abs(p.coordinates_y-:userCoordinatesY) ASC");
-				sqlParams.addValue("userCoordinatesX", request.getCoordinatesX());
-				sqlParams.addValue("userCoordinatesY", request.getCoordinatesY());
-			}
-			
-			if(request.isObj()) {
-				return (List<T>) placeRepository.findMemoirBySearchRequestParameters(
-						SQLGenericStatementBuilder.orderBy(orderByAndSortByRequest, sqlStatement).toString(), 
-						sqlParams);
-			}
-			return (List<T>) placeRepository.findIdBySearchRequestParameters(
-					SQLGenericStatementBuilder.orderBy(orderByAndSortByRequest, sqlStatement).toString(), 
+			sqlStatement.append(sqlStatementBeforeWherePredicate).append("WHERE ").append(sqlStatementAfterWherePredicate);
+		}
+		
+		if(request.isObj()) {
+			return (List<T>) placeRepository.findMemoirBySearchRequestParameters(
+					SQLGenericStatementBuilder.orderBy(orderByAndSortByRequest, 
+							SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatement)).toString(), 
 					sqlParams);
 		}
+		
+		return (List<T>) placeRepository.findIdBySearchRequestParameters(
+				SQLGenericStatementBuilder.orderBy(orderByAndSortByRequest, 
+						SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatement)).toString(), 
+				sqlParams);
+		
 	}
 
 }

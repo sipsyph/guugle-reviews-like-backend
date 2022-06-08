@@ -7,13 +7,28 @@ public class SQLGenericStatementBuilder {
 	public static StringBuilder removeLastOccurrenceOfAndKeyword(StringBuilder sqlStatement) {
 		System.out.println("Statement before removal of AND: "+sqlStatement+" ");
 		final int indexOfLastAnd = sqlStatement.lastIndexOf("AND");
-		
+		System.out.println("indexOfLastAnd: "+indexOfLastAnd);
 		if(indexOfLastAnd==-1) {
 			return sqlStatement;
 		}else {
 			return new StringBuilder(sqlStatement.capacity()).append(sqlStatement.substring(0, indexOfLastAnd));
 		}
 	}
+	
+//	public static StringBuilder removeLastOccurrenceOfAndKeyword(StringBuilder sqlStatement, boolean isExtraWherePredicateExists) {
+//		if(isExtraWherePredicateExists) {
+//			System.out.println("Statement before removal of AND: "+sqlStatement+" ");
+//			final int indexOfLastAnd = sqlStatement.lastIndexOf("AND");
+//			
+//			if(indexOfLastAnd==-1) {
+//				return sqlStatement;
+//			}else {
+//				return new StringBuilder(sqlStatement.capacity()).append(sqlStatement.substring(0, indexOfLastAnd));
+//			}
+//		}else {
+//			return sqlStatement;
+//		}
+//	}
 
 	public static StringBuilder orderBy(List<String> orderByAndSortByRequest, StringBuilder sqlStatement) {
 		System.out.println("Statement without order by and limit: "+sqlStatement+" ");
