@@ -36,7 +36,6 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 			selectedFields.append("SELECT p.id ");
 		}
 		
-		
 		if(request.getOrderByAndSortBy()!=null) {
 			orderByAndSortByRequest.addAll(request.getOrderByAndSortBy());
 		}
@@ -44,7 +43,7 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 		if(!request.isMemoirAttributesEmpty()) {
 			final StringBuilder sqlStatementMemoirJoin = new StringBuilder(200);
 			sqlStatementMemoirJoin.append("INNER JOIN LATERAL ( ");
-			sqlStatementMemoirJoin.append("SELECT SUM(m.ups) AS upvotes FROM memoir m ");
+			sqlStatementMemoirJoin.append("SELECT SUM(m.ups) - SUM(m.downs) AS upvotes FROM memoir m ");
 			sqlStatementMemoirJoin.append("WHERE m.place_id = p.id AND ");
 			
 			if(request.getCategoryType()!=null && !request.getCategoryType().isEmpty()) {
@@ -65,7 +64,6 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 			if(request.isObj()) {
 				selectedFields.append(", memoir.upvotes ");
 			}
-			
 			
 			beforeWhereClause.append(
 					SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementMemoirJoin))

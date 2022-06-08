@@ -1,7 +1,6 @@
 package com.sip.chillhub.main.business.model;
 
 public class Place {
-	
 	public Long getId() {
 		return id;
 	}
@@ -32,51 +31,25 @@ public class Place {
 	public void setCoordinatesY(double coordinatesY) {
 		this.coordinatesY = coordinatesY;
 	}
-	public double getAvgRating() {
-		return avgRating;
+	public Integer getUpvotes() {
+		return upvotes;
 	}
-	public void setAvgRating(double avgRating) {
-		this.avgRating = avgRating;
+	public void setUpvotes(Integer upvotes) {
+		this.upvotes = upvotes;
 	}
-	public Integer getMemoirsAmount() {
-		return memoirsAmount;
-	}
-	public void setMemoirsAmount(Integer memoirsAmount) {
-		this.memoirsAmount = memoirsAmount;
-	}
-	public Integer getEngagesAmount() {
-		return engagesAmount;
-	}
-	public void setEngagesAmount(Integer engagesAmount) {
-		this.engagesAmount = engagesAmount;
-	}
-	@Override
-	public String toString() {
-		return "Place [id=" + id + ", displayName=" + displayName + ", name=" + name + ", coordinatesX=" + coordinatesX
-				+ ", coordinatesY=" + coordinatesY + ", avgRating=" + avgRating + ", memoirsAmount=" + memoirsAmount
-				+ ", engagesAmount=" + engagesAmount + "]";
-	}
-	public Place(Long id, String displayName, String name, double coordinatesX, double coordinatesY, double avgRating,
-			Integer memoirsAmount, Integer engagesAmount, Integer upvotes) {
+	public Place(Long id, String displayName, String name, double coordinatesX, double coordinatesY, Integer upvotes) {
 		this.id = id;
 		this.displayName = displayName;
 		this.name = name;
 		this.coordinatesX = coordinatesX;
 		this.coordinatesY = coordinatesY;
-		this.avgRating = avgRating;
-		this.memoirsAmount = memoirsAmount;
-		this.engagesAmount = engagesAmount;
 		this.upvotes = upvotes;
 	}
-	
 	private Long id;
 	private String displayName;
 	private String name;
 	private double coordinatesX;
 	private double coordinatesY;
-	private double avgRating;
-	private Integer memoirsAmount;
-	private Integer engagesAmount;
 	private Integer upvotes;
 
 }

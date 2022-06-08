@@ -50,9 +50,6 @@ public class PlaceRepository {
 							rs.getString("name"),
 							rs.getDouble("coordinates_x"),
 							rs.getDouble("coordinates_y"),
-							rs.getDouble("avg_rating"),
-							rs.getInt("memoirs_amount"),
-							rs.getInt("engages_amount"),
 							rs.getInt("upvotes")
         				));
         
