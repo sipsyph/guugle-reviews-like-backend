@@ -57,7 +57,7 @@ public class Place {
 				+ ", engagesAmount=" + engagesAmount + "]";
 	}
 	public Place(Long id, String displayName, String name, double coordinatesX, double coordinatesY, double avgRating,
-			Integer memoirsAmount, Integer engagesAmount) {
+			Integer memoirsAmount, Integer engagesAmount, Integer upvotes) {
 		this.id = id;
 		this.displayName = displayName;
 		this.name = name;
@@ -66,6 +66,7 @@ public class Place {
 		this.avgRating = avgRating;
 		this.memoirsAmount = memoirsAmount;
 		this.engagesAmount = engagesAmount;
+		this.upvotes = upvotes;
 	}
 	
 	private Long id;
@@ -76,5 +77,6 @@ public class Place {
 	private double avgRating;
 	private Integer memoirsAmount;
 	private Integer engagesAmount;
+	private Integer upvotes;
 
 }

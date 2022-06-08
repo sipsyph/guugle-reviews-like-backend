@@ -39,7 +39,7 @@ public class PlaceRepository {
         return null;
 	}
 	
-	public List<Place> findMemoirBySearchRequestParameters(String sqlStatement, MapSqlParameterSource sqlParams){
+	public List<Place> findPlaceBySearchRequestParameters(String sqlStatement, MapSqlParameterSource sqlParams){
         
         List<Place> places = namedParameterJdbcTemplate.query(
         		sqlStatement.toString(), 
@@ -52,7 +52,8 @@ public class PlaceRepository {
 							rs.getDouble("coordinates_y"),
 							rs.getDouble("avg_rating"),
 							rs.getInt("memoirs_amount"),
-							rs.getInt("engages_amount")
+							rs.getInt("engages_amount"),
+							rs.getInt("upvotes")
         				));
         
         if(places.size()>0) {

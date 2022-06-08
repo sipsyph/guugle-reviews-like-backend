@@ -22,19 +22,20 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 	@Override
 	public <T> List<T> findAllBySearchRequest(PlaceSearchRequest request){
 		//System.out.println(request.toString());
-		final StringBuilder sqlStatementBeforeWherePredicate = new StringBuilder(200);
-		final StringBuilder sqlStatementAfterWherePredicate = new StringBuilder(200);
+		final StringBuilder selectedFields = new StringBuilder(200);
+		final StringBuilder beforeWhereClause = new StringBuilder(200);
+		final StringBuilder afterWhereClause = new StringBuilder(200);
 		final StringBuilder sqlStatement = new StringBuilder(500);
 		MapSqlParameterSource sqlParams = new MapSqlParameterSource();
 		boolean wherePredicateEmpty = true;
+		List<String> orderByAndSortByRequest = new ArrayList<>();
 		
 		if(request.isObj()) {
-			sqlStatementBeforeWherePredicate.append("SELECT * FROM place p ");
+			selectedFields.append("SELECT p.* ");
 		}else {
-			sqlStatementBeforeWherePredicate.append("SELECT id FROM place p ");
+			selectedFields.append("SELECT p.id ");
 		}
 		
-		List<String> orderByAndSortByRequest = new ArrayList<>();
 		
 		if(request.getOrderByAndSortBy()!=null) {
 			orderByAndSortByRequest.addAll(request.getOrderByAndSortBy());
@@ -61,9 +62,12 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 				sqlParams.addValue("peopleTrafficType", request.getPeopleTrafficType());
 			}
 			
+			if(request.isObj()) {
+				selectedFields.append(", memoir.upvotes ");
+			}
 			
 			
-			sqlStatementBeforeWherePredicate.append(
+			beforeWhereClause.append(
 					SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementMemoirJoin))
 			.append("GROUP BY m.place_id ) AS memoir ON TRUE ");
 			
@@ -72,13 +76,13 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 		if(!request.isEmpty()) {
 			
 			if(request.getId()!=null && !request.getId().isEmpty()) {
-				sqlStatementAfterWherePredicate.append("p.id IN (:id) AND ");
+				afterWhereClause.append("p.id IN (:id) AND ");
 				sqlParams.addValue("id", request.getId());
 				wherePredicateEmpty = false;
 			}
 			
 			if(request.getSearchString()!=null) {
-				sqlStatementAfterWherePredicate.append("p.name LIKE :searchString AND ");
+				afterWhereClause.append("p.name LIKE :searchString AND ");
 				sqlParams.addValue("searchString", request.getSearchString());
 				wherePredicateEmpty = false;
 			}
@@ -96,14 +100,16 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 			sqlParams.addValue("userCoordinatesY", request.getCoordinatesY());
 		}
 		
+		selectedFields.append("FROM place p "); //TODO: put common sql shit like this in an enum
+		
 		if(wherePredicateEmpty) {
-			sqlStatement.append(sqlStatementBeforeWherePredicate);
+			sqlStatement.append(selectedFields).append(beforeWhereClause);
 		}else {
-			sqlStatement.append(sqlStatementBeforeWherePredicate).append("WHERE ").append(sqlStatementAfterWherePredicate);
+			sqlStatement.append(selectedFields).append(beforeWhereClause).append("WHERE ").append(afterWhereClause);
 		}
 		
 		if(request.isObj()) {
-			return (List<T>) placeRepository.findMemoirBySearchRequestParameters(
+			return (List<T>) placeRepository.findPlaceBySearchRequestParameters(
 					SQLGenericStatementBuilder.orderBy(orderByAndSortByRequest, 
 							SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatement)).toString(), 
 					sqlParams);
@@ -113,7 +119,5 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 				SQLGenericStatementBuilder.orderBy(orderByAndSortByRequest, 
 						SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatement)).toString(), 
 				sqlParams);
-		
 	}
-
 }
