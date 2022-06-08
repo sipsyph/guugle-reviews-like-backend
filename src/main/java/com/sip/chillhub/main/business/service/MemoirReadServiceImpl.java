@@ -1,5 +1,6 @@
 package com.sip.chillhub.main.business.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,79 +23,88 @@ public class MemoirReadServiceImpl implements MemoirReadService {
 	@Override
 	public <T> List<T> findAllBySearchRequest(MemoirSearchRequest request){
 		System.out.println(request.toString());
-		final StringBuilder sqlStatementUntilWherePredicate = new StringBuilder(200); 
+		final StringBuilder selectedFields = new StringBuilder(200);
+		final StringBuilder afterWhereClause = new StringBuilder(200);
 		final StringBuilder sqlStatement = new StringBuilder(500);
+		boolean wherePredicateEmpty = true;
+		List<String> orderByAndSortByRequest = new ArrayList<>();
 		MapSqlParameterSource sqlParams = new MapSqlParameterSource();
+		
 		if(request.isObj()) {
-			sqlStatementUntilWherePredicate.append("SELECT * FROM memoir ");
+			selectedFields.append("SELECT m.* ");
 		}else {
-			sqlStatementUntilWherePredicate.append("SELECT id FROM memoir ");
+			selectedFields.append("SELECT m.id ");
+		}
+		
+		if(request.getOrderByAndSortBy()!=null) {
+			orderByAndSortByRequest.addAll(request.getOrderByAndSortBy());
 		}
 		
 		if(!request.isEmpty()) {
-			sqlStatementUntilWherePredicate.append("WHERE ");
-			
 			if(request.getId() != null && !request.getId().isEmpty()) {
-				sqlStatementUntilWherePredicate.append("id IN (:id) AND ");
+				afterWhereClause.append("id IN (:id) AND ");
 				sqlParams.addValue("id", request.getId());
+				wherePredicateEmpty = false;
 			}
 			
 			if(request.getCategoryType() != null && !request.getCategoryType().isEmpty()) {
-				sqlStatementUntilWherePredicate.append("category_type IN (:categoryType) AND ");
+				afterWhereClause.append("category_type IN (:categoryType) AND ");
 				sqlParams.addValue("categoryType", request.getCategoryType());
+				wherePredicateEmpty = false;
 			}
 			
 			if(request.getDescType() != null && !request.getDescType().isEmpty()) {
-				sqlStatementUntilWherePredicate.append("desc_type IN (:descType) AND ");
+				afterWhereClause.append("desc_type IN (:descType) AND ");
 				sqlParams.addValue("descType", request.getDescType());
+				wherePredicateEmpty = false;
 			}
 			
 			if(request.getPeopleTrafficType() != null && !request.getPeopleTrafficType().isEmpty()) {
-				sqlStatementUntilWherePredicate.append("people_traffic_type IN (:peopleTrafficType) AND ");
+				afterWhereClause.append("people_traffic_type IN (:peopleTrafficType) AND ");
 				sqlParams.addValue("peopleTrafficType", request.getPeopleTrafficType());
+				wherePredicateEmpty = false;
 			}
 			
 			if(request.getPlaceId() != null && !request.getPlaceId().isEmpty()) {
-				sqlStatementUntilWherePredicate.append("place_id IN (:placeId) AND ");
+				afterWhereClause.append("place_id IN (:placeId) AND ");
 				sqlParams.addValue("placeId", request.getPlaceId());
+				wherePredicateEmpty = false;
 			}
 			
 			if(request.getUsrId() != null && !request.getUsrId().isEmpty()) {
-				sqlStatementUntilWherePredicate.append("usr_id IN (:usrId) AND ");
+				afterWhereClause.append("usr_id IN (:usrId) AND ");
 				sqlParams.addValue("usrId", request.getUsrId());
+				wherePredicateEmpty = false;
 			}
 			
 			if(request.getSearchString()!=null) {
-				sqlStatementUntilWherePredicate.append("(name LIKE :searchString OR ");
+				afterWhereClause.append("(name LIKE :searchString OR ");
 				sqlParams.addValue("searchString", request.getSearchString());
 				
-				sqlStatementUntilWherePredicate.append("body LIKE :searchString) AND ");
+				afterWhereClause.append("body LIKE :searchString) AND ");
 				sqlParams.addValue("searchString", request.getSearchString());
+				wherePredicateEmpty = false;
 			}
-			
-			if(request.isObj()) {
-				return (List<T>) memoirRepository.findMemoirBySearchRequestParameters(
-						SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), 
-								SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementUntilWherePredicate)).toString(), 
-						sqlParams);
-			}
-			
-			return (List<T>) memoirRepository.findIdBySearchRequestParameters(
-					SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), 
-							SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementUntilWherePredicate)).toString(), 
-					sqlParams);
-			
+		}
+		
+		selectedFields.append("FROM memoir m "); //TODO: put common sql shit like this in an enum
+		
+		if(wherePredicateEmpty) {
+			sqlStatement.append(selectedFields);
 		}else {
-			sqlStatement.append(sqlStatementUntilWherePredicate);
-			if(request.isObj()) {
-				return (List<T>) memoirRepository.findMemoirBySearchRequestParameters(
-						SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), sqlStatement).toString(), 
-						sqlParams);
-			}
-			return (List<T>) memoirRepository.findIdBySearchRequestParameters(
-					SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), sqlStatement).toString(), 
+			sqlStatement.append(selectedFields).append("WHERE ").append(afterWhereClause);
+		}
+		
+		if(request.isObj()) {
+			return (List<T>) memoirRepository.findMemoirBySearchRequestParameters(
+					SQLGenericStatementBuilder.orderBy(orderByAndSortByRequest, 
+							SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatement)).toString(), 
 					sqlParams);
 		}
+		return (List<T>) memoirRepository.findIdBySearchRequestParameters(
+				SQLGenericStatementBuilder.orderBy(orderByAndSortByRequest, 
+						SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatement)).toString(), 
+				sqlParams);
 	}
 	
 	public Long addMemoir(Memoir memoir) {
