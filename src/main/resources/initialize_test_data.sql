@@ -20,8 +20,6 @@ begin
 end;
 $$ language plpgsql;
 
-
-
 Create or replace function random_name(length integer) returns text as
 $$
 declare
@@ -40,10 +38,22 @@ begin
 end;
 $$ language plpgsql;
 
+CREATE OR REPLACE FUNCTION random_unique_array_of_int(max_arr_len integer, min integer, max integer) RETURNS integer[] AS $BODY$
+begin
+	return (
+		SELECT ARRAY_AGG( a.n ) FROM (    
+			SELECT ROUND(RANDOM()*(max - min) + min)::INT n FROM GENERATE_SERIES(min,max) 
+			GROUP BY 1 LIMIT max_arr_len
+		) a
+	);
+end
+$BODY$ LANGUAGE plpgsql;
+
 --select random_text(50);
 --select random_name(3);
 --select encode(gen_random_bytes(30),'base64') 
 --select cast(current_date - (random() * (interval '360 days')) + '1 days' as date);
+--select random_unique_array_of_int(10, 1, 20);
 
 ---------------------------------------------------------------------------------------------------------
 --PLACE
@@ -135,7 +145,7 @@ create table memoir
 	"name" varchar(100),
 	body varchar(30000),
 	category_type smallint not null default 1,
-	desc_type smallint not null default 1,
+	desc_type integer ARRAY not null default array[]::integer[],
 	people_traffic_type smallint not null default 1,
 	created_date date not null default current_date,
 	ups int not null default 1,
@@ -176,7 +186,7 @@ begin
 					random_name(10),
 					random_text(15),
 					cast( ((floor(random()*(5-1+1))+1)+random()) as integer ),
-					cast( ((floor(random()*(5-1+1))+1)+random()) as integer ),
+					random_unique_array_of_int(10,1,20),
 					cast( ((floor(random()*(5-1+1))+1)+random()) as integer ),
 					cast(current_date - (random() * (interval '360 days')) + '1 days' as date),
 					cast( ((floor(random()*(50-1+1))+1)+random()) as integer ),
