@@ -5,8 +5,27 @@ declare
  itigil mo kalokohan mo , makulet ka? , kanban , pain , high like the buildings in makati , Itoy pagpapalipas ng gabi sa tabi ng mambabarang, 
 Kaya dudukutin ko na agad yung isang mata mo laglag din yung kabila, Lalagariin ka nang braso putol din yung kaliwa, 
 Sasaksakin ng mababaw sa leeg butas din yaong batok, Mamartilyuhin ng isa sa ulo pero dalawa yaong dadagok, 
-Babarilin ng isa sa dibdib dalawang bala yung papasok Palulunukin ng isang granada pero dalawa yaong sasabog, 
-O bakit doble lagi yung resulta sa sinasabi mo na kulang? Hindi kaya ikaw din yung ginagamit na manika habang ikaw yung kinukulam?!}';
+Babarilin ng isa sa dibdib dalawang bala yung papasok, Palulunukin ng isang granada pero dalawa yaong sasabog, 
+O bakit doble lagi yung resulta sa sinasabi mo na kulang?, Hindi kaya ikaw din yung ginagamit na manika habang ikaw yung kinukulam?! }';
+  result text := '';
+  i integer := 0;
+begin
+  if length < 0 then
+    raise exception 'Given length cannot be less than 0';
+  end if;
+  for i in 1..length loop
+    result := result || chars[1+random()*(array_length(chars, 1)-1)];
+  end loop;
+  return result;
+end;
+$$ language plpgsql;
+
+Create or replace function random_place_name(length integer) returns text as
+$$
+declare
+  chars text[] := '{ SM Bacoor , Mcdonalds , Jollibee , Congrats BBM , Antoks , B-Side , 
+  SM Dasma , Lozol Dosmo , Time Ka Na Computer Shop , Dasmarinas , Cavite City , Bacoor , 
+  Aguinaldo Highway , Center of Information Technology in Cavite , 2x Na Yan! , Memoirea  }';
   result text := '';
   i integer := 0;
 begin
@@ -62,13 +81,11 @@ drop table if exists place cascade;
 create table place
 ( 
 	id serial constraint place_pk primary key,
-	display_name varchar(200),
+	display_name varchar(400),
 	"name" varchar(200),
 	coordinates_x decimal(15,2) not null default 0,
 	coordinates_y decimal(15,2) not null default 0
 );
-
-
 
 create extension if not exists pgcrypto;
 
@@ -76,11 +93,11 @@ truncate table place cascade;
 
 do $$
 begin
-for r in 1..100000 loop
+for r in 1..1000000 loop
 insert into place(display_name,"name", coordinates_x,coordinates_y) 
 values(
-		encode(gen_random_bytes(30),'base64'),
-		encode(gen_random_bytes(30),'base64'),
+		random_place_name(4),
+		random_place_name(2),
 		cast( ((floor(random()*(500000-1000+1))+10)+random()) as decimal(15,2) ),
 		cast( ((floor(random()*(500000-1000+1))+10)+random()) as decimal(15,2) )
 );
@@ -112,7 +129,7 @@ truncate table usr cascade;
 
 do $$
 begin
-for r in 1..100000 loop
+for r in 1..1000000 loop
 insert into usr("name", pass,"desc",usr_type,is_premium,coins,avatar_img,name_style,last_login_date,created_date,del) 
 values(
 		random_name(3) || r,
@@ -132,7 +149,7 @@ end;
 $$;
 
 ----------------------------------------------------------------------------------------------
---MEMOIR
+--MEMOIR WITH NO DESCRIPTION DERIVED FROM MEMOIR_DESC TABLE
 drop table if exists memoir cascade;
 
 create table memoir
@@ -145,7 +162,6 @@ create table memoir
 	"name" varchar(100),
 	body varchar(30000),
 	category_type smallint not null default 1,
-	desc_type integer ARRAY not null default array[]::integer[],
 	people_traffic_type smallint not null default 1,
 	created_date date not null default current_date,
 	ups int not null default 1,
@@ -174,12 +190,97 @@ on memoir(place_id);
 truncate table memoir cascade;
 
 --Total time (ms)	88744  on 100k records
+--Execute time (ms)	1315677 on 1m records June 6 2022
+--Execute time (ms)	1934703 on 1m records June 11 2022
+--Execute time (ms)	1270497
+do $$
+begin
+	for i in 1..1000000 loop
+		for j in 1..5 loop
+			insert into memoir(place_id,usr_id,"name",body,category_type,people_traffic_type,created_date,ups,downs,del) 
+			values(
+					i,
+					i,
+					random_name(10),
+					random_text(15),
+					cast( ((floor(random()*(5-1+1))+1)+random()) as integer ),
+					cast( ((floor(random()*(5-1+1))+1)+random()) as integer ),
+					cast(current_date - (random() * (interval '360 days')) + '1 days' as date),
+					cast( ((floor(random()*(50-1+1))+1)+random()) as integer ),
+					cast( ((floor(random()*(50-1+1))+1)+random()) as integer ),
+					false
+			);
+		end loop;
+	end loop;
+end;
+$$;
+
+
+----------------------------------------------------------------------------------------------
+--MEMOIR DESC
+drop table if exists memoir_desc cascade;
+
+create table memoir_desc
+( 
+	id serial constraint memoir_desc_pk primary key,
+	memoir_id bigint ,
+	constraint place_fk foreign key(memoir_id) references memoir(id),
+	desc_type smallint not null default 1
+);
+
+create index memoir_desc_memoir_id_idx
+on memoir_desc(memoir_id);
+
+--create index memoir_desc_type_idx
+--on memoir_desc(desc_type);
+--
+--drop index memoir_desc_type_idx;
+
+create index memoir_id_and_desc_type_idx
+on memoir_desc(memoir_id, desc_type);
+
+
+truncate table memoir_desc cascade;
+
+insert into memoir_desc(memoir_id,desc_type) 
+select m.id,unnest(random_unique_array_of_int(7,1,10)) from memoir m;
+
+
+--MEMOIR WITH DESC_TYPE AS AN INT ARRAY
+----------------------------------------------------------------------------------------------
+--MEMOIR2
+drop table if exists memoir2 cascade;
+
+create table memoir2
+( 
+	id serial constraint memoir2_pk primary key,
+	place_id bigint ,
+	constraint place_fk foreign key(place_id) references place(id),
+	usr_id bigint ,
+	constraint usr_fk foreign key(usr_id) references usr(id),
+	"name" varchar(100),
+	body varchar(30000),
+	category_type smallint not null default 1,
+	desc_type integer ARRAY not null default array[]::integer[],
+	people_traffic_type smallint not null default 1,
+	created_date date not null default current_date,
+	ups int not null default 1,
+	downs int not null default 0,
+	del boolean not null default false
+);
+
+create index memoir2_place_id_idx
+on memoir2(place_id);
+
+truncate table memoir2 cascade;
+
+--Total time (ms)	88744  on 100k records
 --Execute time (ms)	1315677 on 1m records
 do $$
 begin
 	for i in 1..100000 loop
-		for j in 1..10 loop
-			insert into memoir(place_id,usr_id,"name",body,category_type,desc_type,people_traffic_type,created_date,ups,downs,del) 
+		for j in 1..5 loop
+			insert into memoir2(place_id,usr_id,"name",body,category_type,desc_type,people_traffic_type,created_date,ups,downs,del) 
 			values(
 					i,
 					i,
@@ -197,5 +298,3 @@ begin
 	end loop;
 end;
 $$;
-
-
