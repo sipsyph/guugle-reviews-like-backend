@@ -1,5 +1,7 @@
 package com.sip.chillhub.main.business.controller;
 
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sip.chillhub.main.business.model.User;
 import com.sip.chillhub.main.business.model.UserSearchRequest;
 import com.sip.chillhub.main.business.service.UserReadService;
@@ -31,7 +34,8 @@ public class UserController {
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public String findAll(@RequestBody UserSearchRequest request) {
-        return new Gson().toJson(userReadService.findAllBySearchRequest(request));
+    	final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+    	return gson.toJson(userReadService.findAllBySearchRequest(request));
     }
     
     @PostMapping

@@ -21,50 +21,40 @@ public class UserReadServiceImpl implements UserReadService {
 	@Override
 	public <T> List<T> findAllBySearchRequest(UserSearchRequest request){
 		//System.out.println(request.toString());
-		final StringBuilder sqlStatementUntilWherePredicate = new StringBuilder(200); 
-		final StringBuilder sqlStatement = new StringBuilder(500);
+		final StringBuilder sqlStatement = new StringBuilder(200); 
 		MapSqlParameterSource sqlParams = new MapSqlParameterSource();
 		if(request.isObj()) {
-			sqlStatementUntilWherePredicate.append("SELECT * FROM usr ");
+			sqlStatement.append("SELECT (SELECT ROW_TO_JSON(u) FROM (SELECT u.*) AS u) FROM usr u ");
+			
 		}else {
-			sqlStatementUntilWherePredicate.append("SELECT id FROM usr ");
+			sqlStatement.append("SELECT u.id FROM usr u ");
 		}
 		if(!request.isEmpty()) {
-			sqlStatementUntilWherePredicate.append("WHERE ");
+			sqlStatement.append("WHERE ");
 			
 			if(request.getId()!=null && !request.getId().isEmpty()) {
-				sqlStatementUntilWherePredicate.append("id IN (:id) AND ");
+				sqlStatement.append("id IN (:id) AND ");
 				sqlParams.addValue("id", request.getId());
 			}
 			
 			if(request.getName()!=null && !request.getName().isEmpty()) {
-				sqlStatementUntilWherePredicate.append("name LIKE :name AND ");
+				sqlStatement.append("name LIKE :name AND ");
 				sqlParams.addValue("name", request.getName());
 			}
-			
-			if(request.isObj()) {
-				return (List<T>) userRepository.findMemoirBySearchRequestParameters(
-						SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), 
-								SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementUntilWherePredicate)).toString(), 
-						sqlParams);
-			}
-			
+		}
+		
+		if(request.isObj()) {
+			return (List<T>) userRepository.findUserBySearchRequestParameters(
+					SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), 
+							SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatement)).toString(), 
+					sqlParams);
+		}else {
 			return (List<T>) userRepository.findIdBySearchRequestParameters(
 					SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), 
-							SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementUntilWherePredicate)).toString(), 
-					sqlParams);
-			
-		}else {
-			sqlStatement.append(sqlStatementUntilWherePredicate);
-			
-			if(request.isObj()) {
-				return (List<T>) userRepository.findMemoirBySearchRequestParameters(
-						SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), sqlStatement).toString(), 
-						sqlParams);
-			}
-			return (List<T>) userRepository.findIdBySearchRequestParameters(
-					SQLGenericStatementBuilder.orderBy(request.getOrderByAndSortBy(), sqlStatement).toString(), 
+							SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatement)).toString(), 
 					sqlParams);
 		}
+
+			
 	}
 }
