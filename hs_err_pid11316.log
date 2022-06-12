@@ -1,0 +1,21 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0x00007f94fddda381, pid=11316, tid=11333
+#
+# JRE version: OpenJDK Runtime Environment (11.0.15+10) (build 11.0.15+10-Ubuntu-0ubuntu0.18.04.1)
+# Java VM: OpenJDK 64-Bit Server VM (11.0.15+10-Ubuntu-0ubuntu0.18.04.1, mixed mode, sharing, tiered, compressed oops, g1 gc, linux-amd64)
+# Problematic frame:
+# C  [libjimage.so+0x2381]
+#
+# Core dump will be written. Default location: Core dumps may be processed with "/usr/sbin/BitDefender/bdch %t %e %p %s -p%p -s%s -c%c -d%d -P%P -u%u -g%g -- %E" (or dumping to /home/jance/Downloads/elasticsearch/a_a_a/chillhub-main-java/core.11316)
+#
+# If you would like to submit a bug report, please visit:
+#   Unknown
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: -agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:46491 -javaagent:/home/jance/dev-tools/sts-4.4.0.RELEASE/configuration/org.eclipse.osgi/238/0/.cp/lib/javaagent-shaded.jar -Dfile.encoding=UTF-8 com.sip.chillhub.main.ChillhubMainApplication
+
+Host: 
