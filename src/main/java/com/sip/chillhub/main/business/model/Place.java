@@ -7,11 +7,11 @@ public class Place {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getDisplayName() {
-		return displayName;
+	public String getAddress() {
+		return address;
 	}
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
+	public void setAddress(String address) {
+		this.address = address;
 	}
 	public String getName() {
 		return name;
@@ -37,16 +37,16 @@ public class Place {
 	public void setUpvotes(Integer upvotes) {
 		this.upvotes = upvotes;
 	}
-	public Place(Long id, String displayName, String name, double coordinatesX, double coordinatesY, Integer upvotes) {
+	public Place(Long id, String address, String name, double coordinatesX, double coordinatesY, Integer upvotes) {
 		this.id = id;
-		this.displayName = displayName;
+		this.address = address;
 		this.name = name;
 		this.coordinatesX = coordinatesX;
 		this.coordinatesY = coordinatesY;
 		this.upvotes = upvotes;
 	}
 	private Long id;
-	private String displayName;
+	private String address;
 	private String name;
 	private double coordinatesX;
 	private double coordinatesY;

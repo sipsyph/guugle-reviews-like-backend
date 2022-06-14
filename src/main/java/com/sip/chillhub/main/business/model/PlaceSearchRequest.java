@@ -107,10 +107,4 @@ public class PlaceSearchRequest extends BaseSearchRequest {
 		}
 		return false;
 	}
-
-
-
-
-
-	
 }

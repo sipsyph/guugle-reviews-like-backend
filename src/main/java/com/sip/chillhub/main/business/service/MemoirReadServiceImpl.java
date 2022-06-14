@@ -31,7 +31,7 @@ public class MemoirReadServiceImpl implements MemoirReadService {
 		MapSqlParameterSource sqlParams = new MapSqlParameterSource();
 		
 		if(request.isObj()) {
-			selectedFields.append("SELECT m.* ");
+			selectedFields.append("SELECT (SELECT ROW_TO_JSON(m) FROM (SELECT m.*) AS u) ");
 		}else {
 			selectedFields.append("SELECT m.id ");
 		}

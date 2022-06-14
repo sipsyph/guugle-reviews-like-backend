@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -38,27 +39,34 @@ public class MemoirRepository {
         return null;
 	}
 	
-	public List<Memoir> findMemoirBySearchRequestParameters(String sqlStatement, MapSqlParameterSource sqlParams){
-        
-        List<Memoir> memoirs = namedParameterJdbcTemplate.query(
+	public List<String> findMemoirBySearchRequestParameters(String sqlStatement, MapSqlParameterSource sqlParams){
+		List<String> memoirs = namedParameterJdbcTemplate.queryForList(
         		sqlStatement.toString(), 
         		sqlParams,
-        		(rs, rowNum) -> new Memoir(
-        				rs.getLong("id"),
-        				rs.getLong("place_id"),
-        				rs.getLong("usr_id"),
-        				rs.getString("name"),
-        				rs.getString("body"),
-        				rs.getInt("category_type"),
-        				rs.getInt("ups"),
-        				rs.getBoolean("del")
-        				));
+        		String.class);
         
-        if(memoirs.size()>0) {
+        if(memoirs!=null) {
         	return memoirs;
         }
         
         return null;
+	}
+	
+	public Long createMemoir(String sqlStatement, MapSqlParameterSource sqlParams) {
+		
+		Long idOfCreatedMemoir = null;
+		
+		try {
+			idOfCreatedMemoir = namedParameterJdbcTemplate.queryForObject(sqlStatement, sqlParams, Long.class);
+		} catch (EmptyResultDataAccessException e) {
+			System.out.println(e.getMostSpecificCause());
+		}
+		
+		if(idOfCreatedMemoir!=null) {
+			return idOfCreatedMemoir;
+		}else {
+			return null;
+		}
 	}
 	
 }

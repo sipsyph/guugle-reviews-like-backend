@@ -23,7 +23,7 @@ public class UserRepository {
         		sqlParams,
         		String.class);
         
-        if(users!=null || !users.isEmpty()) {
+        if(users!=null) {
         	return users;
         }
         

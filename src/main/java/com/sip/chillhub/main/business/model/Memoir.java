@@ -1,5 +1,6 @@
 package com.sip.chillhub.main.business.model;
 
+import java.util.Date;
 
 public class Memoir {
 	
@@ -73,6 +74,9 @@ public class Memoir {
 	private String name;
 	private String body;
 	private Integer categoryType;
+	private Integer[] descType;
+	private Integer peopleTrafficType;
+	private Date createdDate;
 	private Integer ups;
 	private boolean del;
 
