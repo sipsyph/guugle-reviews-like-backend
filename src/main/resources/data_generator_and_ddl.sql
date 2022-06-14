@@ -81,7 +81,7 @@ drop table if exists place cascade;
 create table place
 ( 
 	id serial constraint place_pk primary key,
-	display_name varchar(400),
+	address varchar(400),
 	"name" varchar(200),
 	coordinates_x decimal(15,2) not null default 0,
 	coordinates_y decimal(15,2) not null default 0
@@ -93,8 +93,8 @@ truncate table place cascade;
 
 do $$
 begin
-for r in 1..1000000 loop
-insert into place(display_name,"name", coordinates_x,coordinates_y) 
+for r in 1..100000 loop
+insert into place(address,"name", coordinates_x,coordinates_y) 
 values(
 		random_place_name(4),
 		random_place_name(2),
@@ -129,7 +129,7 @@ truncate table usr cascade;
 
 do $$
 begin
-for r in 1..1000000 loop
+for r in 1..100000 loop
 insert into usr("name", pass,"desc",usr_type,is_premium,coins,avatar_img,name_style,last_login_date,created_date,del) 
 values(
 		random_name(3) || r,
@@ -195,7 +195,7 @@ truncate table memoir cascade;
 --Execute time (ms)	1270497
 do $$
 begin
-	for i in 1..1000000 loop
+	for i in 1..100000 loop
 		for j in 1..5 loop
 			insert into memoir(place_id,usr_id,"name",body,category_type,people_traffic_type,created_date,ups,downs,del) 
 			values(
@@ -303,3 +303,4 @@ begin
 	end loop;
 end;
 $$;
+
