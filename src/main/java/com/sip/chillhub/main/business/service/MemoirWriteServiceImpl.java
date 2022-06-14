@@ -8,34 +8,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 
-import com.sip.chillhub.main.business.model.User;
-import com.sip.chillhub.main.business.repository.UserRepository;
+import com.sip.chillhub.main.business.model.Memoir;
+import com.sip.chillhub.main.business.repository.MemoirRepository;
 
 @Service
 public class MemoirWriteServiceImpl implements MemoirWriteService {
 	
 	@Autowired
-	private UserRepository userRepository;
+	private MemoirRepository memoirRepository;
 	
-	public Long createMemoir(User user) {
+	public Long createMemoir(Memoir memoir) {
 		final StringBuilder sqlStatement = new StringBuilder(500);
 		MapSqlParameterSource sqlParams = new MapSqlParameterSource();
-		sqlStatement.append("INSERT into usr(name,pass,\"desc\",usr_type,is_premium,coins,avatar_img,name_style,last_login_date,del) ");
-		sqlStatement.append("SELECT :name,:pass,:desc,:usrType,:isPremium,:coins,:avatarImg,:nameStyle,:lastLoginDate,false ");
-		sqlStatement.append("ON CONFLICT DO NOTHING RETURNING id ");
-		sqlParams.addValue("name", user.getName());
-		sqlParams.addValue("pass", user.getPass());
-		sqlParams.addValue("desc", user.getDesc());
-		sqlParams.addValue("usrType", user.getUsrType());
-		sqlParams.addValue("isPremium", user.isPremium());
-		sqlParams.addValue("coins", user.getCoins());
-		sqlParams.addValue("avatarImg", user.getAvatarImg());
-		sqlParams.addValue("nameStyle", user.getNameStyle());
-		sqlParams.addValue("lastLoginDate", new Date());
-		
+		sqlStatement.append("INSERT into memoir(place_id,usr_id,name,body,category_type,desc_type,people_traffic_type) ");
+		sqlStatement.append("SELECT :placeId,:usrId,:name,:body,:categoryType,:descType,:peopleTrafficType ");
+		sqlStatement.append("RETURNING id ");
+		sqlParams.addValue("placeId", memoir.getPlaceId());
+		sqlParams.addValue("usrId", memoir.getUsrId());
+		sqlParams.addValue("name", memoir.getName());
+		sqlParams.addValue("body", memoir.getBody());
+		sqlParams.addValue("categoryType", memoir.getCategoryType());
+		sqlParams.addValue("descType", memoir.getDescType());
+		sqlParams.addValue("peopleTrafficType", memoir.getPeopleTrafficType());
 		System.out.println(sqlStatement);
 		
-		return userRepository.createUser(sqlStatement.toString(), sqlParams);
+		return memoirRepository.createMemoir(sqlStatement.toString(), sqlParams);
 	}
 
 }
