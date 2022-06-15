@@ -39,21 +39,14 @@ public class PlaceRepository {
         return null;
 	}
 	
-	public List<Place> findPlaceBySearchRequestParameters(String sqlStatement, MapSqlParameterSource sqlParams){
+	public List<String> findPlaceBySearchRequestParameters(String sqlStatement, MapSqlParameterSource sqlParams){
         
-        List<Place> places = namedParameterJdbcTemplate.query(
+        List<String> places = namedParameterJdbcTemplate.queryForList(
         		sqlStatement.toString(), 
         		sqlParams,
-        		(rs, rowNum) -> new Place(
-							rs.getLong("id"),
-							rs.getString("display_name"),
-							rs.getString("name"),
-							rs.getDouble("coordinates_x"),
-							rs.getDouble("coordinates_y"),
-							rs.getInt("upvotes")
-        				));
+        		String.class);
         
-        if(places.size()>0) {
+        if(places!=null) {
         	return places;
         }
         

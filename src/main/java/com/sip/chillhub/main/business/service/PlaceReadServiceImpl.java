@@ -31,7 +31,7 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 		List<String> orderByAndSortByRequest = new ArrayList<>();
 		
 		if(request.isObj()) {
-			selectedFields.append("SELECT p.* ");
+			selectedFields.append("SELECT (SELECT ROW_TO_JSON(p) FROM (SELECT p.* ");
 		}else {
 			selectedFields.append("SELECT p.id ");
 		}
@@ -41,33 +41,53 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 		}
 		
 		if(!request.isMemoirAttributesEmpty()) {
-			final StringBuilder sqlStatementMemoirJoin = new StringBuilder(200);
-			sqlStatementMemoirJoin.append("INNER JOIN LATERAL ( ");
-			sqlStatementMemoirJoin.append("SELECT SUM(m.ups) - SUM(m.downs) AS upvotes FROM memoir m ");
-			sqlStatementMemoirJoin.append("WHERE m.place_id = p.id AND ");
+			final StringBuilder memoirJoin = new StringBuilder(200);
+			final StringBuilder memoirJoinSelectedFields = new StringBuilder(200);
+			final StringBuilder memoirJoinWhereClause = new StringBuilder(200);
+			
+			memoirJoinSelectedFields.append("SELECT SUM(m.ups) - SUM(m.downs) AS upvotes ");
+			memoirJoinWhereClause.append("WHERE m.place_id = p.id AND ");
 			
 			if(request.getCategoryType()!=null && !request.getCategoryType().isEmpty()) {
-				sqlStatementMemoirJoin.append("m.category_type IN (:categoryType) AND ");
+				memoirJoinWhereClause.append("m.category_type IN (:categoryType) AND ");
 				sqlParams.addValue("categoryType", request.getCategoryType());
 			}
 			
 			if(request.getDescType()!=null && !request.getDescType().isEmpty()) {
-				sqlStatementMemoirJoin.append("m.desc_type IN (:descType) AND ");
-				sqlParams.addValue("descType", request.getDescType());
+				memoirJoinSelectedFields.append(", SUM( ");
+				memoirJoinWhereClause.append("( ");
+				int i = 1;
+				final int arrSize = request.getDescType().size();
+				for(Integer descElem : request.getDescType()) {
+					if(i==arrSize) {
+						memoirJoinSelectedFields.append
+						("(case when (:cT").append(i).append("= ANY(m.desc_type) ) then ").append(arrSize-(i-1)).append(" else 0 end) ");
+						memoirJoinWhereClause.append(" :cT").append(i).append("= ANY(m.desc_type) ");
+					}else {
+						memoirJoinSelectedFields.append
+						("(case when (:cT").append(i).append("= ANY(m.desc_type) ) then ").append(arrSize-(i-1)).append(" else 0 end) + ");
+						memoirJoinWhereClause.append(" :cT").append(i).append("= ANY(m.desc_type) OR ");
+					}
+					sqlParams.addValue("cT"+i, descElem);
+					i++;
+				}
+				memoirJoinWhereClause.append(") AND ");
+				memoirJoinSelectedFields.append(") AS descMatchScore");
+				orderByAndSortByRequest.add("memoir.descMatchScore DESC ");
 			}
 			
 			if(request.getPeopleTrafficType()!=null && !request.getPeopleTrafficType().isEmpty()) {
-				sqlStatementMemoirJoin.append("m.people_traffic_type IN (:peopleTrafficType) AND ");
+				memoirJoinWhereClause.append("m.people_traffic_type IN (:peopleTrafficType) AND ");
 				sqlParams.addValue("peopleTrafficType", request.getPeopleTrafficType());
 			}
 			
 			if(request.isObj()) {
-				selectedFields.append(", memoir.upvotes ");
+				selectedFields.append(",memoir.upvotes "); //Include this in the main select of place
 			}
-			
-			beforeWhereClause.append(
-					SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatementMemoirJoin))
-			.append("GROUP BY m.place_id ) AS memoir ON TRUE ");
+			memoirJoin.append("INNER JOIN LATERAL ( ");
+			memoirJoin.append(memoirJoinSelectedFields).append(" FROM memoir m ").append( 
+					SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(memoirJoinWhereClause) );
+			beforeWhereClause.append(memoirJoin).append("GROUP BY m.place_id ) AS memoir ON TRUE ");
 			
 		}
 			
@@ -81,6 +101,8 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 			
 			if(request.getSearchString()!=null) {
 				afterWhereClause.append("p.name LIKE :searchString AND ");
+				//sqlParams.addValue("searchString", request.getSearchString());
+				afterWhereClause.append("p.address LIKE :searchString AND ");
 				sqlParams.addValue("searchString", request.getSearchString());
 				wherePredicateEmpty = false;
 			}
@@ -98,24 +120,29 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 			sqlParams.addValue("userCoordinatesY", request.getCoordinatesY());
 		}
 		
+		if(request.isObj()) {
+			selectedFields.append(") as p) ");
+		}
+		
 		selectedFields.append("FROM place p "); //TODO: put common sql shit like this in an enum
 		
 		if(wherePredicateEmpty) {
 			sqlStatement.append(selectedFields).append(beforeWhereClause);
 		}else {
-			sqlStatement.append(selectedFields).append(beforeWhereClause).append("WHERE ").append(afterWhereClause);
+			sqlStatement.append(selectedFields).append(beforeWhereClause).append("WHERE ").append(
+					SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(afterWhereClause));
 		}
 		
 		if(request.isObj()) {
 			return (List<T>) placeRepository.findPlaceBySearchRequestParameters(
 					SQLGenericStatementBuilder.orderBy(orderByAndSortByRequest, 
-							SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatement)).toString(), 
+							sqlStatement).toString(), 
 					sqlParams);
 		}
 		
 		return (List<T>) placeRepository.findIdBySearchRequestParameters(
 				SQLGenericStatementBuilder.orderBy(orderByAndSortByRequest, 
-						SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatement)).toString(), 
+						sqlStatement).toString(), 
 				sqlParams);
 	}
 }
