@@ -106,11 +106,5 @@ public class MemoirReadServiceImpl implements MemoirReadService {
 						SQLGenericStatementBuilder.removeLastOccurrenceOfAndKeyword(sqlStatement)).toString(), 
 				sqlParams);
 	}
-	
-	public Long addMemoir(Memoir memoir) {
-		System.out.println(memoir.toString());
-		final StringBuilder sqlStatement = new StringBuilder(200); 
-		return null;
-	}
 
 }

@@ -40,13 +40,13 @@ public class UserController {
     
     @PostMapping
     @Transactional
-    public ResponseEntity create(@RequestBody User user) {
+    public <T> T create(@RequestBody User user) {
     	
     	final Long userId = userWriteService.createUser(user);
     	if(userId!=null) {
-    		return new ResponseEntity(HttpStatus.OK);
+    		return (T) userId;
     	}else {
-    		return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    		return (T) new ResponseEntity(HttpStatus.BAD_REQUEST);
     	}
     }
 }

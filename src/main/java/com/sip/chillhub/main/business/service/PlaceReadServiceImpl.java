@@ -100,8 +100,7 @@ public class PlaceReadServiceImpl implements PlaceReadService {
 			}
 			
 			if(request.getSearchString()!=null) {
-				afterWhereClause.append("p.name LIKE :searchString AND ");
-				//sqlParams.addValue("searchString", request.getSearchString());
+				afterWhereClause.append("p.name LIKE :searchString OR ");
 				afterWhereClause.append("p.address LIKE :searchString AND ");
 				sqlParams.addValue("searchString", request.getSearchString());
 				wherePredicateEmpty = false;

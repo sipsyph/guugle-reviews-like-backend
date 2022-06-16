@@ -31,25 +31,20 @@ public class Place {
 	public void setCoordinatesY(double coordinatesY) {
 		this.coordinatesY = coordinatesY;
 	}
-	public Integer getUpvotes() {
-		return upvotes;
-	}
-	public void setUpvotes(Integer upvotes) {
-		this.upvotes = upvotes;
-	}
-	public Place(Long id, String address, String name, double coordinatesX, double coordinatesY, Integer upvotes) {
+	public Place(Long id, String address, String name, double coordinatesX, double coordinatesY) {
 		this.id = id;
 		this.address = address;
 		this.name = name;
 		this.coordinatesX = coordinatesX;
 		this.coordinatesY = coordinatesY;
-		this.upvotes = upvotes;
+	}
+	public Place() {
+		
 	}
 	private Long id;
 	private String address;
 	private String name;
 	private double coordinatesX;
 	private double coordinatesY;
-	private Integer upvotes;
 
 }

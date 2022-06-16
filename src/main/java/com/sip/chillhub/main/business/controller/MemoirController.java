@@ -44,14 +44,9 @@ public class MemoirController {
     
     @PostMapping
     @Transactional
-    public ResponseEntity create(@RequestBody Memoir memoir) {
-    	
+    public Long create(@RequestBody Memoir memoir) {
     	final Long memoirId = memoirWriteService.createMemoir(memoir);
-    	if(memoirId!=null) {
-    		return new ResponseEntity(HttpStatus.OK);
-    	}else {
-    		return new ResponseEntity(HttpStatus.BAD_REQUEST);
-    	}
+    	return memoirId;
     }
     
 }
