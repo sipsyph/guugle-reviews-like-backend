@@ -93,7 +93,7 @@ truncate table place cascade;
 
 do $$
 begin
-for r in 1..100000 loop
+for r in 1..10000 loop
 insert into place(address,"name", coordinates_x,coordinates_y) 
 values(
 		random_place_name(4),
@@ -129,7 +129,7 @@ truncate table usr cascade;
 
 do $$
 begin
-for r in 1..100000 loop
+for r in 1..10000 loop
 insert into usr("name", pass,"desc",usr_type,is_premium,coins,avatar_img,name_style,last_login_date,created_date,del) 
 values(
 		random_name(3) || r,
@@ -149,12 +149,12 @@ end;
 $$;
 
 ----------------------------------------------------------------------------------------------
---MEMOIR WITH NO DESCRIPTION DERIVED FROM MEMOIR_DESC TABLE
-drop table if exists memoir cascade;
+--MEMOIR2 WITH NO DESCRIPTION DERIVED FROM MEMOIR_DESC TABLE
+drop table if exists memoir2 cascade;
 
-create table memoir
+create table memoir2
 ( 
-	id serial constraint memoir_pk primary key,
+	id serial constraint memoir2_pk primary key,
 	place_id bigint ,
 	constraint place_fk foreign key(place_id) references place(id),
 	usr_id bigint ,
@@ -169,8 +169,8 @@ create table memoir
 	del boolean not null default false
 );
 
-create index memoir_place_id_idx
-on memoir(place_id);
+create index memoir2_place_id_idx
+on memoir2(place_id);
 
 --create index memoir_category_type_idx
 --on memoir(category_type);
@@ -187,7 +187,7 @@ on memoir(place_id);
 --create index memoir_body_idx
 --on memoir(body);
 
-truncate table memoir cascade;
+truncate table memoir2 cascade;
 
 --Total time (ms)	88744  on 100k records
 --Execute time (ms)	1315677 on 1m records June 6 2022
@@ -195,9 +195,9 @@ truncate table memoir cascade;
 --Execute time (ms)	1270497
 do $$
 begin
-	for i in 1..100000 loop
+	for i in 1..10000 loop
 		for j in 1..5 loop
-			insert into memoir(place_id,usr_id,"name",body,category_type,people_traffic_type,created_date,ups,downs,del) 
+			insert into memoir2(place_id,usr_id,"name",body,category_type,people_traffic_type,created_date,ups,downs,del) 
 			values(
 					i,
 					i,
@@ -224,7 +224,7 @@ create table memoir_desc
 ( 
 	id serial constraint memoir_desc_pk primary key,
 	memoir_id bigint ,
-	constraint place_fk foreign key(memoir_id) references memoir(id),
+	constraint place_fk foreign key(memoir_id) references memoir2(id),
 	desc_type smallint not null default 1
 );
 
@@ -243,17 +243,17 @@ on memoir_desc(memoir_id, desc_type);
 truncate table memoir_desc cascade;
 
 insert into memoir_desc(memoir_id,desc_type) 
-select m.id,unnest(random_unique_array_of_int(7,1,10)) from memoir m;
+select m.id,unnest(random_unique_array_of_int(7,1,10)) from memoir2 m;
 
 
 --MEMOIR WITH DESC_TYPE AS AN INT ARRAY
 ----------------------------------------------------------------------------------------------
---MEMOIR2
-drop table if exists memoir2 cascade;
+--MEMOIR
+drop table if exists memoir cascade;
 
-create table memoir2
+create table memoir
 ( 
-	id serial constraint memoir2_pk primary key,
+	id serial constraint memoir_pk primary key,
 	place_id bigint ,
 	constraint place_fk foreign key(place_id) references place(id),
 	usr_id bigint ,
@@ -269,23 +269,23 @@ create table memoir2
 	del boolean not null default false
 );
 
-create index memoir2_place_id_idx
-on memoir2(place_id);
+create index memoir_place_id_idx
+on memoir(place_id);
 
-create index memoir2_desc_type_idx
-on memoir2(desc_type);
+create index memoir_desc_type_idx
+on memoir(desc_type);
 
 
 
-truncate table memoir2 cascade;
+truncate table memoir cascade;
 
 --Total time (ms)	88744  on 100k records
 --Execute time (ms)	1315677 on 1m records
 do $$
 begin
-	for i in 1..1000000 loop
+	for i in 1..10000 loop
 		for j in 1..5 loop
-			insert into memoir2(place_id,usr_id,"name",body,category_type,desc_type,people_traffic_type,created_date,ups,downs,del) 
+			insert into memoir(place_id,usr_id,"name",body,category_type,desc_type,people_traffic_type,created_date,ups,downs,del) 
 			values(
 					i,
 					i,
@@ -303,4 +303,67 @@ begin
 	end loop;
 end;
 $$;
+
+
+----------------------------------------------------------------------------------------------
+--COMMENT
+drop table if exists "comment" cascade;
+
+create table "comment"
+( 
+	id serial constraint comment_pk primary key,
+	usr_id bigint ,
+	constraint usr_fk foreign key(usr_id) references usr(id),
+	memoir_id bigint ,
+	constraint memoir_fk foreign key(memoir_id) references memoir(id),
+	parent_comment_id bigint ,
+	constraint parent_comment_fk foreign key(parent_comment_id) references comment(id),
+	body varchar(20000),
+	created_date date not null default current_date,
+	ups int not null default 1,
+	downs int not null default 0,
+	del boolean not null default false
+);
+
+create index comment_usr_id_idx
+on "comment"(usr_id);
+
+create index comment_parent_comment_id_idx
+on "comment"(parent_comment_id);
+
+create index comment_memoir_id_idx
+on "comment"(memoir_id);
+
+create index comment_upvotes_idx
+on "comment"((ups-downs));
+
+truncate table "comment" cascade;
+
+do $$
+begin
+	for j in 1..5 loop
+		insert into "comment"(usr_id,memoir_id,parent_comment_id,body,created_date,ups,downs,del) 
+		select m.usr_id,
+		m.id,
+		random_comment_in_memoir.id,
+		random_text(9),
+		cast(current_date - (random() * (interval '360 days')) + '1 days' as date),
+		cast( ((floor(random()*(50-1+1))+1)+random()) as integer ),
+		cast( ((floor(random()*(50-1+1))+1)+random()) as integer ),
+		false
+		from memoir m
+		left join (
+			select count(c.memoir_id) as comments_count, c.memoir_id  from "comment" c
+			group by c.memoir_id
+		) as comments_count_per_memoir on comments_count_per_memoir.memoir_id = m.id 
+		left join lateral ( 
+			select c.id from "comment" c where c.memoir_id = m.id 
+			offset floor(random() * comments_count_per_memoir.comments_count)
+		) as random_comment_in_memoir on true;
+	end loop;
+end;
+$$;
+
+
+
 
