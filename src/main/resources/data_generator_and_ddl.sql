@@ -359,6 +359,7 @@ begin
 		left join lateral ( 
 			select c.id from "comment" c where c.memoir_id = m.id 
 			offset floor(random() * comments_count_per_memoir.comments_count)
+			fetch first 1 rows only
 		) as random_comment_in_memoir on true;
 	end loop;
 end;
