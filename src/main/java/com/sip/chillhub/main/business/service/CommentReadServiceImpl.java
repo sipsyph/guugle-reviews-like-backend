@@ -8,10 +8,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 
 import com.sip.chillhub.main.business.model.CommentSearchRequest;
-import com.sip.chillhub.main.business.model.Memoir;
-import com.sip.chillhub.main.business.model.MemoirSearchRequest;
 import com.sip.chillhub.main.business.repository.CommentRepository;
-import com.sip.chillhub.main.business.repository.MemoirRepository;
 import com.sip.chillhub.main.infra.utils.sql.SQLGenericStatementBuilder;
 
 @Service

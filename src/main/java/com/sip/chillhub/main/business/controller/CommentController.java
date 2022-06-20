@@ -30,7 +30,7 @@ public class CommentController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public String findAll(@RequestBody CommentSearchRequest request) {
+    public String findAll(CommentSearchRequest request) {
         return new Gson().toJson(commentReadService.findAllBySearchRequest(request));
     }
     

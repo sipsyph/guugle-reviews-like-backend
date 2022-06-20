@@ -1,10 +1,10 @@
 apiVersion: 1.0.0
 metadata:
-  name: chillhub-main
+  name: memoirea-main
 projects:
-  - name: chillhub-main
+  - name: memoirea-main
     source:
-      location: 'https://github.com/sipsyph/chillhub-main'
+      location: 'https://github.com/sipsyph/memoirea-main'
       type: git
       branch: main
 components:
@@ -12,7 +12,7 @@ components:
     type: chePlugin
   - mountSources: true
     endpoints:
-      - name: chillhub-main
+      - name: memoirea-main
         port: 8080
     memoryLimit: 1024Mi
     type: dockerimage
@@ -28,7 +28,7 @@ components:
         name: MAVEN_OPTS
   - alias: chillhub
     endpoints:
-      - name: chillhub
+      - name: memoirea
         port: 5432
     memoryLimit: 1024Mi
     type: dockerimage

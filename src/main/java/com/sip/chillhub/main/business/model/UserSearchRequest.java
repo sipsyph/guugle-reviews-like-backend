@@ -1,8 +1,5 @@
 package com.sip.chillhub.main.business.model;
 
-import java.util.Date;
-import java.util.List;
-
 public class UserSearchRequest extends BaseSearchRequest {
 	
 	private String name;

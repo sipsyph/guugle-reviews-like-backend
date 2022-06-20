@@ -1,17 +1,11 @@
 package com.sip.chillhub.main.business.service;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Date;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 
 import com.sip.chillhub.main.business.model.Comment;
-import com.sip.chillhub.main.business.model.Memoir;
 import com.sip.chillhub.main.business.repository.CommentRepository;
-import com.sip.chillhub.main.business.repository.MemoirRepository;
 
 @Service
 public class CommentWriteServiceImpl implements CommentWriteService {

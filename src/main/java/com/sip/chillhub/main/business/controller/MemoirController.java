@@ -4,7 +4,6 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,8 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.sip.chillhub.main.business.model.Memoir;
 import com.sip.chillhub.main.business.model.MemoirSearchRequest;
-import com.sip.chillhub.main.business.model.User;
-import com.sip.chillhub.main.business.repository.MemoirRepository;
 import com.sip.chillhub.main.business.service.MemoirReadService;
 import com.sip.chillhub.main.business.service.MemoirWriteService;
 
@@ -33,7 +30,7 @@ public class MemoirController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public String findAll(@RequestBody MemoirSearchRequest request) {
+    public String findAll(MemoirSearchRequest request) {
         return new Gson().toJson(memoirReadService.findAllBySearchRequest(request));
     }
  

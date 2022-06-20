@@ -1,7 +1,5 @@
 package com.sip.chillhub.main.business.controller;
 
-import java.util.List;
-
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +31,7 @@ public class UserController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public String findAll(@RequestBody UserSearchRequest request) {
+    public String findAll(UserSearchRequest request) {
     	final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
     	return gson.toJson(userReadService.findAllBySearchRequest(request));
     }

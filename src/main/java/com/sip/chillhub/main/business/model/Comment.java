@@ -1,6 +1,5 @@
 package com.sip.chillhub.main.business.model;
 
-import java.util.Arrays;
 import java.util.Date;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
