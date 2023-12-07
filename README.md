@@ -1,5 +1,5 @@
-# memoirea-main
+# A content aggregator, ranker, and forum application
 
-The "main" microservice of Memoirea where the business logic lives.
-
-Notion Doc: https://www.notion.so/Chillhub-ef5ce33f3c6c4e3088be1509c9df5245
+- Searches posts by user engagement, sortable category, and keyword.
+- Has an SQL script that generates random data across all tables
+- Java + Postgres
